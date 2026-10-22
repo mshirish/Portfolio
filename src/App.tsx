@@ -1,11 +1,13 @@
 import { Hero } from "./components/Hero"
 import { Stack } from "./components/Stack"
+import { Certifications } from "./components/Certifications"
 import { Projects } from "./components/Projects"
 import { Experience } from "./components/Experience"
 import { Footer } from "./components/Footer"
 
 const NAV_LINKS = [
   { label: "Stack", href: "#stack" },
+  { label: "Certifications", href: "#certifications" },
   { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
   { label: "Contact", href: "#contact" },
@@ -34,6 +36,7 @@ function App() {
       <main className="mx-auto max-w-[1080px] px-6">
         <Hero />
         <Stack />
+        <Certifications />
         <Projects />
         <Experience />
       </main>
