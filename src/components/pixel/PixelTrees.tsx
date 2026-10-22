@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import type { RefObject } from "react"
-import { useParallax } from "../../hooks/useParallax"
+import { useTargetParallax } from "../../hooks/useParallax"
 import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
 
 const LEAF_LIGHT = "#4E9A51"
@@ -52,9 +52,10 @@ export function PixelTrees({
   target,
 }: {
   className?: string
-  target?: RefObject<HTMLElement | null>
+  target: RefObject<HTMLElement | null>
 }) {
-  const y = useParallax(-0.6, target)
+  // 48px = 12 art pixels at PIXEL_SIZE 4
+  const y = useTargetParallax(target, 48)
 
   return (
     <motion.div className={className} style={{ y }} aria-hidden="true">

@@ -1,7 +1,7 @@
 import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
 
-const MOON = "#D9D9E3"
-const SHADE = "#BFBFC9"
+const MOON = "#EDF4FB"
+const SHADE = "#D9D9E3"
 
 const PIXEL_SIZE = 4
 
