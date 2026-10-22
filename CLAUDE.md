@@ -35,6 +35,7 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 ## Pixel-art rules (important)
 - Build pixel elements as **inline SVG rect grids** (each "pixel" = one `<rect>` on an integer grid), with `shape-rendering: crispEdges`. No external image assets, no blur, no gradients inside pixel art.
 - If a raster sprite is ever used: `image-rendering: pixelated`.
+- These rules are for our own SVG art only. Third-party badges (e.g. certification badges) are shown exactly as issued — never pixelated, filtered, recolored, cropped or rounded.
 - Placement: clouds + moon top-right of hero; small nest/plant near STACK label; bird near projects edge; two trees bottom-right of footer. Corners and margins only.
 - Scale pixel art in whole multiples so pixels stay square.
 
@@ -46,18 +47,21 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 ## Sections (in order)
 1. **Intro/Hero** — mono eyebrow (`SOFTWARE DEVELOPER · OPEN TO WORK` with green dot), huge display name in `accent`, one bold tagline sentence in `text`, 2–3 line bio in `muted`. Pixel clouds + moon top-right.
 2. **Stack** — mono `STACK` label, row of rounded `surface` tiles with tech logos (react-icons/simple-icons), subtle hover lift.
-3. **Projects** — mono `PROJECTS` label, responsive grid (3-col → 1-col) of cards: colored rounded backdrop + stacked screenshot preview, project name, one-line description, mono metadata line, external link on click. Hover: slight rotate/lift of the screenshot stack.
-4. **Experience** — mono `EXPERIENCE` label, vertical list: role, company (accent link), mono date range, 1–2 line description. Hairline `border` dividers between entries. No timeline graphics.
-5. **Footer/Contact** — status line with green dot, oversized display headline ("Let's build something real." style), row of mono links (Email · GitHub · LinkedIn · X). Pixel trees bottom-right rising on scroll.
+3. **Certifications** — mono `CERTIFICATIONS` h2 label, `<ul>` of cards (1-col → `lg:grid-cols-2`, gap-4). Each card is one link to the Credly credential (new tab, visually hidden "(opens in a new tab)"): `rounded-2xl` `surface` card, 1px `border`; issuer badge stacked above the text below `sm`, beside it from `sm`; badge 80px → 96px at `md`, `alt=""`, lazy; mono issuer line, cert name as display h3, "Verify on Credly ↗" in mono `accent`. Hover/focus: border to `accent`, badge lifts 2px (off under reduced motion), subtle shadow. No pixel decoration.
+4. **Projects** — mono `PROJECTS` label, responsive grid (3-col → 1-col) of cards: colored rounded backdrop + stacked screenshot preview, project name, one-line description, mono metadata line, external link on click. Hover: slight rotate/lift of the screenshot stack.
+5. **Experience** — mono `EXPERIENCE` label, vertical list: role, company (accent link), mono date range, 1–2 line description. Hairline `border` dividers between entries. No timeline graphics.
+6. **Footer/Contact** — status line with green dot, oversized display headline ("Let's build something real." style), row of mono links (Email · GitHub · LinkedIn · X). Pixel trees bottom-right rising on scroll.
 
 ## Content
-- Real content lives in `src/data/*.ts` (site, projects, experience, stack, links) — components never hardcode copy.
+- Real content lives in `src/data/*.ts` (site, stack, certifications, projects, experience, links) — components never hardcode copy.
+- Images referenced from data files live in `src/assets/` and are imported, so Vite emits them to `/assets/` with hashed names (served with immutable caching). `public/` is only for files that need fixed URLs (favicon, OG image).
 - `site.ts` holds the name, role, status, hero tagline/bio and page description. It must stay plain strings with no imports, because `vite.config.ts` imports it to generate the `<title>` and meta description.
 - Copy register: plain, specific, first person, no buzzwords. Links say where they go ("View project", "GitHub").
 
 ## Quality floor
 - Responsive to 360px; hero name uses clamp; pixel decorations hide or shrink below `md` if they'd crowd content.
 - Visible keyboard focus states (accent outline), semantic landmarks (`header/main/section/footer`), alt text or `aria-hidden` on decorative SVGs.
+- Heading outline: the hero name is the only h1; section labels are h2 via `<EyebrowLabel as="h2">`; item titles inside sections are h3. The hero eyebrow stays a `p`.
 - Lighthouse-friendly: fonts via `<link>` with `display=swap`, lazy-load project screenshots.
 
 ## Build & container
