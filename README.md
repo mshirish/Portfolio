@@ -27,7 +27,18 @@ npm run dev
 All copy lives in `src/data/*.ts`. Components never hardcode text.
 
 - `site.ts`: name, role, status, hero tagline and bio, and the page description. The page `<title>` and meta description are generated from it at build time.
-- `stack.ts`, `projects.ts`, `experience.ts`, `links.ts`: one file per section.
+- `stack.ts`, `certifications.ts`, `projects.ts`, `experience.ts`, `links.ts`: one file per section.
+
+Images used by data files live in `src/assets/` and are imported, not put in `public/`.
+
+To add a certification:
+
+1. Save the badge in `src/assets/certifications/` (for example `my-cert.png`).
+2. Convert it to a 192px WebP, then delete the PNG:
+   ```sh
+   npx --yes sharp-cli -i src/assets/certifications/my-cert.png -o src/assets/certifications/my-cert.webp resize 192 192
+   ```
+3. Import the WebP in `certifications.ts` and add an entry with `name`, `issuer`, `credentialUrl` and `badge`.
 
 ## Docker
 
@@ -56,6 +67,7 @@ docker run --rm -p 8080:8080 ghcr.io/mshirish/portfolio:latest
 
 ```
 src/
+  assets/             images imported by data files (e.g. certification badges)
   components/         one file per page section
     pixel/            pixel-art SVG decorations
   data/               all site copy
