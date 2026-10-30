@@ -3,6 +3,7 @@ import { Stack } from "./components/Stack"
 import { Certifications } from "./components/Certifications"
 import { Projects } from "./components/Projects"
 import { Experience } from "./components/Experience"
+import { Education } from "./components/Education"
 import { Footer } from "./components/Footer"
 
 const NAV_LINKS = [
@@ -10,6 +11,7 @@ const NAV_LINKS = [
   { label: "Certifications", href: "#certifications" },
   { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
+  { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
 ]
 
@@ -39,6 +41,7 @@ function App() {
         <Certifications />
         <Projects />
         <Experience />
+        <Education />
       </main>
 
       <Footer />
