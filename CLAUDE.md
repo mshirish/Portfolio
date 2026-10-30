@@ -36,11 +36,11 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 - Build pixel elements as **inline SVG rect grids** (each "pixel" = one `<rect>` on an integer grid), with `shape-rendering: crispEdges`. No external image assets, no blur, no gradients inside pixel art.
 - If a raster sprite is ever used: `image-rendering: pixelated`.
 - These rules are for our own SVG art only. Third-party badges (e.g. certification badges) are shown exactly as issued — never pixelated, filtered, recolored, cropped or rounded.
-- Placement: clouds + moon top-right of hero; small nest/plant near STACK label; bird near projects edge; two trees bottom-right of footer. Corners and margins only.
+- Placement: clouds + moon top-right of hero; small nest/plant near STACK label; two trees bottom-right of footer, drawn at 2× (`pixelSize` 8), with the bird perched on the larger tree's crown. Corners and margins only.
 - Scale pixel art in whole multiples so pixels stay square.
 
 ## Motion rules
-- Parallax via Framer Motion scroll progress: clouds drift slowly horizontally and translate at ~0.3× scroll speed; moon at ~0.15× (page-relative, via `useParallax(speed)`); footer trees rise a bounded 48px as the footer enters the viewport and are at rest when the page is scrolled to the bottom (via `useTargetParallax(footerRef, 48)`, never page-relative); bird gently bobs (2–3px, 3s ease-in-out loop).
+- Parallax via Framer Motion scroll progress: clouds drift slowly horizontally and translate at ~0.3× scroll speed; moon at ~0.15× (page-relative, via `useParallax(speed)`); footer trees rise a bounded 48px as the footer enters the viewport and are at rest when the page is scrolled to the bottom (via `useTargetParallax(footerRef, 48)`, never page-relative); the perched bird rises with the trees (same parallax wrapper) and gently bobs on its own (2–3px, 3s ease-in-out loop).
 - Content: single gentle fade + 12px slide-up reveal per section, once, `viewport={{ once: true }}`. No staggered letter animations, no scroll-jacking.
 - Wrap all motion in `useReducedMotion()` — render static when reduced motion is preferred.
 
@@ -49,19 +49,20 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 2. **Stack** — mono `STACK` label, row of rounded `surface` tiles with tech logos (react-icons/simple-icons), subtle hover lift.
 3. **Certifications** — mono `CERTIFICATIONS` h2 label, `<ul>` of cards (1-col → `lg:grid-cols-2`, gap-4). Each card is one link to the Credly credential (new tab, visually hidden "(opens in a new tab)"): `rounded-2xl` `surface` card, 1px `border`; issuer badge stacked above the text below `sm`, beside it from `sm`; badge 80px → 96px at `md`, `alt=""`, lazy; mono issuer line, cert name as display h3, "Verify on Credly ↗" in mono `accent`. Hover/focus: border to `accent`, badge lifts 2px (off under reduced motion), subtle shadow. No pixel decoration.
 4. **Projects** — mono `PROJECTS` label, responsive grid (3-col → 1-col) of cards: colored rounded backdrop + stacked screenshot preview, project name, one-line description, mono metadata line, external link on click. Hover: slight rotate/lift of the screenshot stack.
-5. **Experience** — mono `EXPERIENCE` label, vertical list: role, company (accent link), mono date range, 1–2 line description. Hairline `border` dividers between entries. No timeline graphics.
-6. **Footer/Contact** — status line with green dot, oversized display headline ("Let's build something real." style), row of mono links (Email · GitHub · LinkedIn · X). Pixel trees bottom-right rising on scroll.
+5. **Experience** — mono `EXPERIENCE` h2 label, `<ul>` of companies with hairline `divide-y` dividers. Each company: name as display h3 (plain text, or an accent link opening in a new tab when `companyHref` is set) and a mono uppercase location; roles nested under it, so a promotion stays under one employer. Each role: title (Inter, medium, `text`), mono date range ("APR 2024 — DEC 2024", right-aligned on the title row from `md`, stacked below `md`), and a `muted` summary at max 60ch. No timeline graphics, connecting lines or cards.
+6. **Education** — mono `EDUCATION` h2 label, same divided-list pattern as Experience: degree as display h3, school as an accent link (new tab, ↗), mono location, mono date right-aligned from `md`.
+7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. 2× pixel trees bottom-right, rising on scroll, with the bird perched on the larger tree; hidden below `md`.
 
 ## Content
-- Real content lives in `src/data/*.ts` (site, stack, certifications, projects, experience, links) — components never hardcode copy.
+- Real content lives in `src/data/*.ts` (site, stack, certifications, projects, experience, education, links) — components never hardcode copy.
 - Images referenced from data files live in `src/assets/` and are imported, so Vite emits them to `/assets/` with hashed names (served with immutable caching). `public/` is only for files that need fixed URLs (favicon, OG image).
-- `site.ts` holds the name, role, status, hero tagline/bio and page description. It must stay plain strings with no imports, because `vite.config.ts` imports it to generate the `<title>` and meta description.
+- `site.ts` holds the name, role, status, location, hero tagline/bio, contact headline and page description. It must stay plain strings with no imports, because `vite.config.ts` imports it to generate the `<title>` and meta description.
 - Copy register: plain, specific, first person, no buzzwords. Links say where they go ("View project", "GitHub").
 
 ## Quality floor
 - Responsive to 360px; hero name uses clamp; pixel decorations hide or shrink below `md` if they'd crowd content.
 - Visible keyboard focus states (accent outline), semantic landmarks (`header/main/section/footer`), alt text or `aria-hidden` on decorative SVGs.
-- Heading outline: the hero name is the only h1; section labels are h2 via `<EyebrowLabel as="h2">`; item titles inside sections are h3. The hero eyebrow stays a `p`.
+- Heading outline: the hero name is the only h1; section labels are h2 via `<EyebrowLabel as="h2">`; item titles inside sections are h3. The hero eyebrow stays a `p`. Contact is the exception: its h2 is the headline (`site.contactHeadline`), not a "Contact" label, and its status eyebrow is a `p`.
 - Lighthouse-friendly: fonts via `<link>` with `display=swap`, lazy-load project screenshots.
 
 ## Build & container

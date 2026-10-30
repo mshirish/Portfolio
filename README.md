@@ -26,8 +26,11 @@ npm run dev
 
 All copy lives in `src/data/*.ts`. Components never hardcode text.
 
-- `site.ts`: name, role, status, hero tagline and bio, and the page description. The page `<title>` and meta description are generated from it at build time.
-- `stack.ts`, `certifications.ts`, `projects.ts`, `experience.ts`, `links.ts`: one file per section.
+- `site.ts`: name, role, status, location, hero tagline and bio, contact headline, and the page description. The page `<title>` and meta description are generated from it at build time.
+- `experience.ts`: one entry per company, with `company`, `location`, an optional `companyHref` (the company shows as plain text without it, as a link with it) and a `roles` list. Each role has `title`, `start`, `end` and `summary`; put a promotion as another role under the same company, newest first.
+- `education.ts`: one entry per degree, with `degree`, `school`, `schoolHref`, `location` and `date`.
+- `links.ts`: the contact links in the footer, in display order. `mailto:` links open in the same tab; the rest open in a new tab.
+- `stack.ts`, `certifications.ts`, `projects.ts`: one file per section.
 
 Images used by data files live in `src/assets/` and are imported, not put in `public/`.
 
