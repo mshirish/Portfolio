@@ -20,7 +20,7 @@ interface Layout {
   rowGap: number
 }
 
-const GRID: Layout = { nodeWidth: 196, colGap: 96, rowGap: 56 }
+const GRID: Layout = { nodeWidth: 184, colGap: 80, rowGap: 56 }
 const COLUMN: Layout = { nodeWidth: 232, colGap: 0, rowGap: 48 }
 const LANE_GAP = 16
 
@@ -212,7 +212,9 @@ function Diagram({ view, layout, className }: { view: CloudView; layout: "grid" 
       role="img"
       aria-labelledby={`${titleId} ${descId}`}
       viewBox={`${-margin} ${-margin} ${width + margin * 2} ${height + margin * 2}`}
-      className={`h-auto w-full ${className}`}
+      // Never scale above 1:1, so text stays at its designed size on wide panels
+      style={{ maxWidth: width + margin * 2 }}
+      className={`mx-auto h-auto w-full ${className}`}
     >
       <title id={titleId}>{view.title}</title>
       <desc id={descId}>{describe(view)}</desc>
