@@ -8,12 +8,12 @@ import {
   SiFigma,
 } from "react-icons/si"
 
-export interface StackItem {
+export interface SkillItem {
   name: string
   icon: IconType
 }
 
-export const stack: StackItem[] = [
+export const skills: SkillItem[] = [
   { name: "React", icon: SiReact },
   { name: "TypeScript", icon: SiTypescript },
   { name: "JavaScript", icon: SiJavascript },
