@@ -31,7 +31,8 @@ All copy lives in `src/data/*.ts`. Components never hardcode text.
 - `education.ts`: one entry per degree, with `degree`, `school`, `schoolHref`, `location` and `date`.
 - `links.ts`: the contact links in the footer, in display order. `mailto:` links open in the same tab; the rest open in a new tab.
 - `projects.ts`: one entry per project, with card fields (`name`, `summary`, `tech`, `backdrop`, `images`), links (`repoUrl`, optional `demoUrl`, `demoNote`) and an optional `caseStudy` (overview, what I built, cloud diagram views and key decisions, known limitations). Diagram nodes sit on a `col`/`row` grid of up to 3 columns.
-- `stack.ts`, `certifications.ts`: one file per section.
+- `skills.ts`: the Skills section's tech list (name and react-icons icon per entry).
+- `certifications.ts`: one entry per certification (see below).
 
 Images used by data files live in `src/assets/` and are imported, not put in `public/`.
 
