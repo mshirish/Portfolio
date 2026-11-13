@@ -5,6 +5,10 @@ import levantEvidence1 from "../assets/projects/levant-table/evidence/01-terrafo
 import levantEvidence2 from "../assets/projects/levant-table/evidence/02-target-healthy.webp"
 import levantEvidence3 from "../assets/projects/levant-table/evidence/03-storefront-over-alb.webp"
 import levantEvidence4 from "../assets/projects/levant-table/evidence/04-asg-self-heal.webp"
+import devpilotLanding from "../assets/projects/devpilot/01-landing.webp"
+import devpilotRepositories from "../assets/projects/devpilot/02-repositories.webp"
+import devpilotOverview from "../assets/projects/devpilot/03-overview.webp"
+import devpilotChat from "../assets/projects/devpilot/04-chat.webp"
 
 export interface DiagramNode {
   id: string
@@ -198,6 +202,125 @@ export const projects: Project[] = [
       limitations: [
         "Refunds are manual: cancelling emails the customer, and staff refund the deposit in the Stripe dashboard.",
         "Payments run in Stripe test mode only; it's a public demo and never processes real cards.",
+      ],
+    },
+  },
+  {
+    slug: "devpilot",
+    name: "DevPilot",
+    subtitle: "Ask questions about a codebase in plain English, with answers that cite the source files",
+    summary:
+      "A RAG assistant for GitHub repos: it indexes the code into pgvector and answers questions with clickable source citations.",
+    tech: [
+      "Java 21",
+      "Spring Boot",
+      "Spring AI",
+      "PostgreSQL + pgvector",
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Docker",
+      "GitHub Actions",
+    ],
+    backdrop: "#0D9488",
+    images: [devpilotChat, devpilotOverview, devpilotRepositories],
+    repoUrl: "https://github.com/mshirish/DevPilot",
+    demoUrl: "https://dev-pilot-blush.vercel.app/login",
+    wakeNote: "Free hosting: the first load can take 1–2 minutes.",
+    demoNote:
+      "Click “Try the live demo” on the sign-in page; no sign-up needed. The server sleeps when idle, so the first load can take 1–2 minutes. If the day's free AI quota is used up, the demo says so; try again tomorrow.",
+    warmupUrl: "https://dev-pilot-blush.vercel.app/api/auth/config",
+    credits: {
+      text: "Capstone project at Clark University, built with",
+      name: "Aashutosh Paneru",
+      href: "https://github.com/Aashutosh17",
+      detail:
+        "Aashutosh built user management, GitHub OAuth sign-in and security, and the first indexing utilities with the pgvector setup.",
+    },
+    howItWorks: [
+      "Connect: sign in with GitHub (or as a demo guest) and pick a repository.",
+      "Index: files are fetched and filtered (no build output, lockfiles or files over 100 KB), split into token-sized chunks headed with their file path, embedded with Gemini, and stored in Postgres with pgvector.",
+      "Retrieve: each question is embedded and matched against that repository's chunks only, taking the 8 closest by cosine distance from an HNSW index.",
+      "Answer: Gemini writes the reply from those chunks, streamed token by token over server-sent events, with each source file shown as a clickable citation.",
+    ],
+    gallery: {
+      title: "Screenshots",
+      items: [
+        {
+          src: devpilotChat,
+          alt: "DevPilot chat answering how demo mode limits visitor questions, with source-file chips below the answer",
+          caption: "An answer with clickable source-file citations",
+          width: 1600,
+          height: 767,
+        },
+        {
+          src: devpilotOverview,
+          alt: "DevPilot workspace overview showing repository, ready, indexed-chunk and needs-attention counts",
+          caption: "Workspace overview: 763 indexed code chunks",
+          width: 1600,
+          height: 776,
+        },
+        {
+          src: devpilotRepositories,
+          alt: "DevPilot repositories page listing synced GitHub repositories with their indexing status",
+          caption: "Repositories synced from GitHub, with indexing status",
+          width: 1600,
+          height: 778,
+        },
+        {
+          src: devpilotLanding,
+          alt: "DevPilot landing page with Connect GitHub, Index with RAG and Ask anything feature cards",
+          caption: "The landing page",
+          width: 1275,
+          height: 849,
+        },
+      ],
+    },
+    caseStudy: {
+      overview:
+        "Understanding an unfamiliar codebase means opening file after file to trace how one feature works. DevPilot connects to GitHub, indexes a repository, and answers questions about it in plain English, citing the files each answer came from.",
+      built: [
+        "The retrieval and chat pipeline: repository-scoped vector search, a prompt built from the matched chunks, answers streamed over SSE, and citation chips linking to the source files. The model call stops if the visitor leaves mid-answer.",
+        "The indexing service and its recovery: jobs interrupted by a server restart are marked failed on startup, so a repository never stays stuck in “indexing”.",
+        "A read-only demo mode: guest sessions without GitHub, one preset repository, no syncing or indexing for visitors, and question caps per visitor and per day to stay inside the free AI quota.",
+        "Free-tier hosting on Vercel, Render and Neon: Vercel proxies the API and OAuth paths so the session cookie stays first-party, and the database pool can drop to zero so Neon can sleep.",
+        "Gemini free-tier handling: embeddings throttled to 90 a minute, 30–120 second backoff on rate limits, and a clear message when the daily quota runs out.",
+        "Integration tests for demo mode, question caps and chat-failure cleanup; GitHub Actions builds and tests the backend against Postgres with pgvector and builds the frontend.",
+      ],
+      cloud: {
+        views: [
+          {
+            id: "arch",
+            tabLabel: "Architecture",
+            title: "Vercel + Render + Neon",
+            caption: "Everything runs on free tiers. The browser only ever talks to Vercel.",
+            nodes: [
+              { id: "browser", label: "Browser", col: 0, row: 0 },
+              { id: "vercel", label: "Vercel", sublabel: "Next.js · proxies /api and OAuth", col: 1, row: 0 },
+              { id: "render", label: "Render", sublabel: "Spring Boot · Spring AI · Java 21", col: 1, row: 1 },
+              { id: "neon", label: "Neon", sublabel: "Postgres + pgvector", col: 0, row: 2 },
+              { id: "gemini", label: "Google Gemini", sublabel: "embeddings + chat · free tier", col: 1, row: 2 },
+              { id: "github", label: "GitHub API", sublabel: "OAuth + repository files", col: 2, row: 2 },
+            ],
+            edges: [
+              { from: "browser", to: "vercel", label: "HTTPS" },
+              { from: "vercel", to: "render", label: "proxied /api, /oauth2" },
+              { from: "render", to: "neon", label: "JDBC" },
+              { from: "render", to: "gemini", label: "OpenAI-compatible API" },
+              { from: "render", to: "github", label: "REST" },
+            ],
+          },
+        ],
+        decisions: [
+          "Same-origin by proxy: browsers don't send cookies to a different site on API calls, so Vercel forwards the backend's paths instead of the app needing a custom domain.",
+          "GitHub OAuth tokens are encrypted at rest, and the demo asks GitHub only for read:user.",
+          "Embeddings are stored at 1536 dimensions so pgvector's HNSW index can be used (it supports up to 2000).",
+        ],
+      },
+      limitations: [
+        "The demo is read-only: one preloaded repository and a few questions per visitor.",
+        "Answers depend on Gemini's free daily quota; when it runs out, the demo asks visitors to come back tomorrow.",
+        "Indexing runs in memory on a single backend instance: a restart stops the job, which is then marked failed so it can be retried.",
       ],
     },
   },
