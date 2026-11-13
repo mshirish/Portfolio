@@ -1,6 +1,10 @@
 import levantTable1 from "../assets/projects/levant-table/1.webp"
 import levantTable2 from "../assets/projects/levant-table/2.webp"
 import levantTable3 from "../assets/projects/levant-table/3.webp"
+import levantEvidence1 from "../assets/projects/levant-table/evidence/01-terraform-apply.webp"
+import levantEvidence2 from "../assets/projects/levant-table/evidence/02-target-healthy.webp"
+import levantEvidence3 from "../assets/projects/levant-table/evidence/03-storefront-over-alb.webp"
+import levantEvidence4 from "../assets/projects/levant-table/evidence/04-asg-self-heal.webp"
 
 export interface DiagramNode {
   id: string
@@ -35,6 +39,9 @@ export interface GalleryItem {
   src: string
   alt: string
   caption: string
+  /** Intrinsic size, for width/height attributes */
+  width: number
+  height: number
 }
 
 export interface Project {
@@ -84,6 +91,47 @@ export const projects: Project[] = [
     demoUrl: "https://levant-table.onrender.com",
     demoNote:
       "Stripe test mode: card 4242 4242 4242 4242, any future date, any CVC. Free hosting, so the first load can take about a minute.",
+    wakeNote: "Free hosting: the first load can take about a minute.",
+    extraLinks: [
+      {
+        label: "Architecture write-up",
+        href: "https://github.com/mshirish/Store-Website/blob/main/ARCHITECTURE.md",
+      },
+    ],
+    gallery: {
+      title: "Verification on AWS",
+      items: [
+        {
+          src: levantEvidence1,
+          alt: "terraform apply output with alb_dns_name and rds_endpoint",
+          caption: "terraform apply: outputs include the load balancer's DNS name",
+          width: 572,
+          height: 142,
+        },
+        {
+          src: levantEvidence2,
+          alt: "store-app-tg target group showing 1 healthy target on HTTP 8000",
+          caption: "Target group: the instance healthy on /healthz/",
+          width: 1200,
+          height: 494,
+        },
+        {
+          src: levantEvidence3,
+          alt: "Levant Table storefront loaded from the store-alb DNS name",
+          caption: "The storefront served through the load balancer",
+          width: 1200,
+          height: 726,
+        },
+        {
+          src: levantEvidence4,
+          alt: "EC2 instances list: the original store-app instance terminated and a replacement running",
+          caption:
+            "Self-healing: after an instance was terminated, the Auto Scaling group launched a replacement",
+          width: 1200,
+          height: 245,
+        },
+      ],
+    },
     caseStudy: {
       overview:
         "Levant Table is a fictional family store whose cake and catering orders ran on phone calls, so orders got missed and large ones no-showed. Customers now order online, pay a deposit that commits the order, and choose a pickup window; staff run every order from the admin back office.",
@@ -92,7 +140,7 @@ export const projects: Project[] = [
         "Four product types that price differently (cakes by size, meat by the pound, groceries by unit, catering by tray or weight), modeled with Django multi-table inheritance.",
         "Orders snapshot prices, tax, the deposit split and the pickup window at checkout, so editing a product later never rewrites an order.",
         "Pickup windows derived from store hours and closures, with a next-open-day rule.",
-        "28 tests with Stripe mocked, per-line tax math to the cent, and service logic kept separate from HTTP views.",
+        "31 tests with Stripe mocked, per-line tax math to the cent, and service logic kept separate from HTTP views.",
       ],
       cloud: {
         views: [
@@ -122,23 +170,22 @@ export const projects: Project[] = [
             title: "ALB + Auto Scaling + RDS",
             caption:
               "Provisioned with Terraform and verified end to end, then torn down to save cost. Recreated with one command.",
-            note: "Security groups: ALB → app → database, each tier open only to the one before it.",
+            note:
+              "Security groups: ALB → app → database, each tier open only to the one before it. VPC across two availability zones.",
             nodes: [
               { id: "visitor", label: "Visitor", col: 0, row: 0 },
               { id: "alb", label: "Application Load Balancer", sublabel: "HTTP :80 · health check /healthz/", col: 1, row: 0 },
+              { id: "r2", label: "Cloudflare R2", sublabel: "uploaded media", col: 0, row: 1 },
+              { id: "asg", label: "Auto Scaling group", sublabel: "1–2 EC2 instances · Docker · gunicorn", col: 1, row: 1 },
               { id: "stripe", label: "Stripe Checkout", sublabel: "test mode", col: 2, row: 1 },
-              { id: "asg", label: "Auto Scaling group", sublabel: "Docker containers · gunicorn", col: 1, row: 1 },
-              { id: "cloudwatch", label: "CloudWatch", sublabel: "metrics · alarms", col: 0, row: 1 },
-              { id: "rds", label: "RDS PostgreSQL", sublabel: "private", col: 1, row: 2 },
+              { id: "rds", label: "RDS PostgreSQL 16", sublabel: "private subnets · single-AZ", col: 1, row: 2 },
             ],
             edges: [
               { from: "visitor", to: "alb", label: "HTTP :80" },
               { from: "alb", to: "asg", label: ":8000" },
               { from: "asg", to: "rds", label: ":5432" },
+              { from: "asg", to: "r2", label: "S3 API" },
               { from: "asg", to: "stripe", label: "checkout · webhook", twoWay: true },
-              { from: "cloudwatch", to: "alb", label: "metrics", dashed: true },
-              { from: "cloudwatch", to: "asg", label: "metrics", dashed: true },
-              { from: "cloudwatch", to: "rds", label: "metrics", dashed: true },
             ],
           },
         ],
