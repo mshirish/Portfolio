@@ -31,6 +31,12 @@ export interface CloudView {
   edges: DiagramEdge[]
 }
 
+export interface GalleryItem {
+  src: string
+  alt: string
+  caption: string
+}
+
 export interface Project {
   slug: string
   name: string
@@ -42,6 +48,16 @@ export interface Project {
   repoUrl: string
   demoUrl?: string
   demoNote?: string
+  /** Short cold-start note, shown on the card and beside the demo button */
+  wakeNote?: string
+  /** Fetched once per page view to wake a sleeping backend */
+  warmupUrl?: string
+  /** Ordered steps, rendered as a numbered list */
+  howItWorks?: string[]
+  /** Collaborators, named visibly in the modal */
+  credits?: { text: string; name: string; href: string; detail?: string }
+  extraLinks?: { label: string; href: string }[]
+  gallery?: { title: string; items: GalleryItem[] }
   /** Copy not yet verified against the project's repo. CI refuses to merge drafts. */
   draft?: boolean
   video?: { src: string; poster: string; description: string }

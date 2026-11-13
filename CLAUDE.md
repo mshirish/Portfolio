@@ -79,6 +79,10 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 - CI (`.github/workflows/ci.yml`) blocks draft project data, lints, builds and smoke-tests the image on every PR; pushes to `main` publish `ghcr.io/mshirish/portfolio`.
 - `media/` is a separate local-only Node project (its own `package.json` and lockfile) for screenshot capture and demo video tooling. It is excluded from the site build (`tsconfig.app.json` includes only `src`), lint (`ignorePatterns` in `.oxlintrc.json`) and Docker (`.dockerignore`). Its `captures/`, `out/`, `node_modules/` and `.env.local` are gitignored and never committed.
 
+## Git workflow
+- The owner makes every commit. Agents never run `git commit`, `git push` or `git stash`, never stage files, and never create PRs.
+- After each numbered step of a task, stop and report: the files changed, a 2–3 sentence explanation, a suggested conventional commit message, and the exact `git add <files> && git commit -m "..."` command. Wait for "next" before continuing.
+
 ## Don'ts
 - No gradients, no glassmorphism, no glow effects.
 - No pixel fonts for body/headline text (mono utility labels only).
