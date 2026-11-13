@@ -80,7 +80,6 @@ export const projects: Project[] = [
   {
     slug: "levant-table",
     name: "Levant Table",
-    draft: true,
     subtitle: "Online ordering for a grocery, bakery, butcher and caterer",
     summary:
       "Online ordering with Stripe deposits and pickup scheduling for a four-department food store.",
@@ -136,7 +135,7 @@ export const projects: Project[] = [
       overview:
         "Levant Table is a fictional family store whose cake and catering orders ran on phone calls, so orders got missed and large ones no-showed. Customers now order online, pay a deposit that commits the order, and choose a pickup window; staff run every order from the admin back office.",
       built: [
-        "Payment confirmation that never trusts the browser: the success redirect, a signed Stripe webhook and a scheduled reconcile command all go through one locked function, so each order is confirmed and emailed exactly once.",
+        "Payment confirmation that never trusts the browser: the success redirect, a signed Stripe webhook and a reconcile command (run on demand or on a schedule) all go through one locked function, so each order is confirmed and emailed exactly once.",
         "Four product types that price differently (cakes by size, meat by the pound, groceries by unit, catering by tray or weight), modeled with Django multi-table inheritance.",
         "Orders snapshot prices, tax, the deposit split and the pickup window at checkout, so editing a product later never rewrites an order.",
         "Pickup windows derived from store hours and closures, with a next-open-day rule.",
@@ -185,7 +184,7 @@ export const projects: Project[] = [
               { from: "alb", to: "asg", label: ":8000" },
               { from: "asg", to: "rds", label: ":5432" },
               { from: "asg", to: "r2", label: "S3 API" },
-              { from: "asg", to: "stripe", label: "checkout · webhook", twoWay: true },
+              { from: "asg", to: "stripe", label: "checkout", twoWay: true },
             ],
           },
         ],
