@@ -93,6 +93,13 @@ interface Route {
   edge: DiagramEdge
   d: string
   labelAt: { x: number; y: number }
+  /** Keeps the label chip from starting left of this x (lane chips stay clear of the nodes) */
+  labelMinX?: number
+}
+
+/** Centre x of an edge's label chip, honouring the route's labelMinX. */
+function chipCenterX(route: Route, chipWidth: number) {
+  return Math.max(route.labelAt.x, (route.labelMinX ?? -Infinity) + chipWidth / 2)
 }
 
 function gridLayout(view: CloudView) {
@@ -179,11 +186,19 @@ function columnLayout(view: CloudView) {
       edge,
       d: `M ${w} ${y1} L ${laneX} ${y1} L ${laneX} ${y2} L ${w} ${y2}`,
       labelAt: { x: laneX, y: (y1 + y2) / 2 },
+      labelMinX: w + 6,
     }
   })
 
-  const widestChip = Math.max(0, ...view.edges.map((e) => (e.label ? chipSize(chipLines(e.label)).w : 0)))
-  const width = w + (lanes ? LANE_GAP * (lanes + 1) + widestChip / 2 : 0)
+  const chipRight = Math.max(
+    0,
+    ...routes.map((r) => {
+      if (!r.edge.label) return 0
+      const chip = chipSize(chipLines(r.edge.label))
+      return chipCenterX(r, chip.w) + chip.w / 2
+    }),
+  )
+  const width = Math.max(w + (lanes ? LANE_GAP * (lanes + 1) : 0), chipRight)
   const height = y - rowGap
   return { boxes, routes, width, height }
 }
@@ -278,14 +293,16 @@ function Diagram({ view, layout, className }: { view: CloudView; layout: "grid" 
         </g>
       ))}
 
-      {routes.map(({ edge, labelAt }) => {
+      {routes.map((route) => {
+        const { edge, labelAt } = route
         if (!edge.label) return null
         const lines = chipLines(edge.label)
         const chip = chipSize(lines)
+        const cx = chipCenterX(route, chip.w)
         return (
           <g key={`${edge.from}-${edge.to}-label`}>
             <rect
-              x={labelAt.x - chip.w / 2}
+              x={cx - chip.w / 2}
               y={labelAt.y - chip.h / 2}
               width={chip.w}
               height={chip.h}
@@ -296,7 +313,7 @@ function Diagram({ view, layout, className }: { view: CloudView; layout: "grid" 
               {lines.map((line, i) => (
                 <tspan
                   key={i}
-                  x={labelAt.x}
+                  x={cx}
                   y={labelAt.y - chip.h / 2 + CHIP_PAD_Y + EDGE_LABEL_SIZE * 0.8 + i * (EDGE_LABEL_SIZE + 2)}
                 >
                   {line}

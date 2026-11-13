@@ -1,14 +1,33 @@
 import type { Ref } from "react"
 import type { Project } from "../data/projects"
 import { DraftTag } from "./DraftTag"
+import { ExternalLink } from "./ExternalLink"
+
+// Fan out on card hover, or when the case-study button has keyboard focus.
+const FAN = "motion-safe:group-hover:-translate-y-2 motion-safe:group-has-[[aria-haspopup]:focus-visible]:-translate-y-2"
 
 // Back to front. Hover/focus slides every sheet up 8px and fans the back two 2° further.
 const SHEETS = [
-  { imageIndex: 2, className: "rotate-[-3deg] motion-safe:group-hover:rotate-[-5deg] motion-safe:group-focus-visible:rotate-[-5deg]" },
-  { imageIndex: 1, className: "rotate-[2deg] motion-safe:group-hover:rotate-[4deg] motion-safe:group-focus-visible:rotate-[4deg]" },
+  {
+    imageIndex: 2,
+    className:
+      "rotate-[-3deg] motion-safe:group-hover:rotate-[-5deg] motion-safe:group-has-[[aria-haspopup]:focus-visible]:rotate-[-5deg]",
+  },
+  {
+    imageIndex: 1,
+    className:
+      "rotate-[2deg] motion-safe:group-hover:rotate-[4deg] motion-safe:group-has-[[aria-haspopup]:focus-visible]:rotate-[4deg]",
+  },
   { imageIndex: 0, className: "" },
 ]
 
+const CARD_LINK = "font-mono text-xs uppercase tracking-[0.2em] text-accent underline-offset-4 hover:underline"
+
+/**
+ * An <article> rather than one big button, because it holds real links. The case-study
+ * button's ::after stretches over the whole card so a click anywhere opens the modal;
+ * the links row sits above that layer.
+ */
 export function ProjectCard({
   project,
   onOpen,
@@ -19,13 +38,7 @@ export function ProjectCard({
   ref?: Ref<HTMLButtonElement>
 }) {
   return (
-    <button
-      ref={ref}
-      type="button"
-      aria-haspopup="dialog"
-      onClick={onOpen}
-      className="group block w-full rounded-2xl text-left"
-    >
+    <article className="group relative h-full">
       <div className="relative aspect-[4/3]">
         {/* Back panel and its tab */}
         <div
@@ -48,7 +61,7 @@ export function ProjectCard({
             return (
               <div
                 key={imageIndex}
-                className={`absolute inset-x-0 top-0 rounded-lg bg-white p-1 shadow-sm shadow-black/20 transition-[translate,rotate] duration-300 ease-out motion-reduce:transition-none motion-safe:group-hover:-translate-y-2 motion-safe:group-focus-visible:-translate-y-2 ${className}`}
+                className={`absolute inset-x-0 top-0 rounded-lg bg-white p-1 shadow-sm shadow-black/20 transition-[translate,rotate] duration-300 ease-out motion-reduce:transition-none ${FAN} ${className}`}
               >
                 <div className="aspect-[16/10] overflow-hidden rounded-md bg-white">
                   {src && (
@@ -86,10 +99,38 @@ export function ProjectCard({
         <p className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
           {project.tech.join(" · ")}
         </p>
-        <p className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-accent">
+        {project.credits && (
+          <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-muted">
+            With {project.credits.name}
+          </p>
+        )}
+
+        <button
+          ref={ref}
+          type="button"
+          aria-haspopup="dialog"
+          onClick={onOpen}
+          className="mt-4 font-mono text-xs uppercase tracking-[0.2em] text-accent after:absolute after:inset-0 after:rounded-2xl after:content-['']"
+        >
           View case study <span aria-hidden="true">→</span>
-        </p>
+        </button>
+
+        {(project.demoUrl || project.repoUrl) && (
+          <div className="relative z-10 mt-3 flex flex-wrap gap-x-6 gap-y-2">
+            {project.demoUrl && (
+              <ExternalLink href={project.demoUrl} className={CARD_LINK}>
+                Live demo
+              </ExternalLink>
+            )}
+            <ExternalLink href={project.repoUrl} className={CARD_LINK}>
+              Code
+            </ExternalLink>
+          </div>
+        )}
+        {project.wakeNote && (
+          <p className="mt-2 font-mono text-xs text-muted">{project.wakeNote}</p>
+        )}
       </div>
-    </button>
+    </article>
   )
 }
