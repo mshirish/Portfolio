@@ -1,0 +1,17 @@
+{
+  "name": "portfolio-media",
+  "private": true,
+  "type": "module",
+  "description": "Local-only tooling for project screenshots and demo videos. Never part of the site build.",
+  "scripts": {
+    "capture": "tsx scripts/capture-levant.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "dotenv": "18.0.9",
+    "playwright": "1.65.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  }
+}

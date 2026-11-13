@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Media tooling (local-only captures and secrets)
+media/node_modules
+media/.env.local
+media/captures
+media/out
