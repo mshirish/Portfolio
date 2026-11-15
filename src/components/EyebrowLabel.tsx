@@ -8,7 +8,7 @@ export function EyebrowLabel({
 }: {
   children: ReactNode
   withDot?: boolean
-  as?: "p" | "h2"
+  as?: "p" | "h2" | "h3" | "h4"
   id?: string
 }) {
   return (

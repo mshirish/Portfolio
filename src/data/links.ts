@@ -4,8 +4,7 @@ export interface LinkItem {
 }
 
 export const links: LinkItem[] = [
-  { label: "Email", href: "mailto:hello@example.com" },
-  { label: "GitHub", href: "https://github.com/" },
-  { label: "LinkedIn", href: "https://linkedin.com/" },
-  { label: "X", href: "https://x.com/" },
+  { label: "Email", href: "mailto:mshirish2002@gmail.com" },
+  { label: "GitHub", href: "https://github.com/mshirish" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/shirish-maharjan-9806a3239" },
 ]

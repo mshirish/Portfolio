@@ -5,8 +5,6 @@ const BODY = "#8A5A32"
 const BELLY = "#EDF4FB"
 const EYE = "#26262C"
 
-const PIXEL_SIZE = 4
-
 const n = null
 
 const grid: PixelGrid = [
@@ -16,10 +14,15 @@ const grid: PixelGrid = [
   [n, BODY, BODY, n, n, n],
 ]
 
-const { width, height } = gridSize(grid, PIXEL_SIZE)
-
-export function PixelBird({ className }: { className?: string }) {
+export function PixelBird({
+  className,
+  pixelSize = 4,
+}: {
+  className?: string
+  pixelSize?: number
+}) {
   const prefersReducedMotion = useReducedMotion()
+  const { width, height } = gridSize(grid, pixelSize)
 
   return (
     <motion.svg
@@ -32,7 +35,7 @@ export function PixelBird({ className }: { className?: string }) {
       animate={prefersReducedMotion ? undefined : { y: [0, -3, 0] }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
     >
-      {renderPixelGrid(grid, PIXEL_SIZE)}
+      {renderPixelGrid(grid, pixelSize)}
     </motion.svg>
   )
 }

@@ -19,6 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Draft projects carry case-study copy that isn't verified against their repo yet.
+      - name: Block draft project data
+        run: |
+          if git grep -n "draft: true" -- src/data; then
+            echo "::error::Draft project data can't be merged. Verify the case study, then remove draft: true."
+            exit 1
+          fi
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc

@@ -43,3 +43,12 @@
     scroll-behavior: auto;
   }
 }
+
+/* Stable gutter so locking scroll under an open dialog doesn't shift the page. */
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
