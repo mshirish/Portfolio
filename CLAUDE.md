@@ -13,7 +13,7 @@ Single-page portfolio for a software developer. Aesthetic: **modern minimal dark
 | Token | Hex | Use |
 |---|---|---|
 | `bg` | `#0E0E10` | Page background |
-| `surface` | `#18181C` | Cards, skill tiles, footer strip |
+| `surface` | `#18181C` | Cards, skill chips, footer strip |
 | `border` | `#26262C` | 1px hairlines, tile borders |
 | `text` | `#F2F2EF` | Headlines, primary text |
 | `muted` | `#8B8B94` | Body copy, metadata |
@@ -28,7 +28,13 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 - **Utility/mono:** "JetBrains Mono", uppercase, `letter-spacing: 0.2em`, 12–13px — for eyebrow labels (`PROJECTS`, `SKILLS`, `EXPERIENCE`), dates, and metadata. Every section opens with a mono eyebrow label.
 
 ### Spacing & layout
-- Single column, max-width `~1080px`, generous vertical rhythm: `py-28 md:py-40` between sections.
+- Single column, max-width `~1080px`.
+- **Section spacing lives in one place:** the `section-y` utility in `src/index.css` (`padding-block: 2rem`, `3rem` from `md`, plus `scroll-margin-top: 1.5rem`), giving 64px between sections on mobile and 96px on desktop. Every section uses it; to change the rhythm, edit that utility. No per-section `py-*` padding.
+  - Two exceptions override one side only. The Hero's top is `pt-16 md:pt-24`, for room under the nav. The Footer's bottom is `md:pb-28` (112px), which clears the 2× trees and bird (104px, plus a 3px bob) so they never reach the © line.
+  - The gap from a section's h2 label to its content is always `mt-6 md:mt-8`.
+  - In divided lists (Education, Experience), items use `first:pt-0 last:pb-0`, so the list's own padding never adds to section spacing.
+- **Content-sized sections:** no `min-height` or fixed height on any section or wrapper. Grids use auto rows, so a section grows only when its data does.
+- **Empty sections are hidden:** `App.tsx` builds both the page sections and the nav links from one list over the data arrays. A section whose array is empty renders neither the section nor its nav link. Never hardcode a separate nav list.
 - Left-aligned content. Pixel decorations anchored to right/corners so they never overlap text at any viewport.
 - Cards: `rounded-2xl`, `surface` bg, 1px `border`, no shadows except subtle on hover.
 
@@ -65,7 +71,12 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
    - **Cloud & operations** (`CloudTabs`): with several views, a segmented pill control (surface track, raised active pill) built as an ARIA tablist (arrow keys, Home/End, `aria-selected`, labelled tabpanels), under the label "Cloud & operations". A single view renders on its own, with no tab control, under the label "Architecture". Each view: title, diagram, caption, optional `note`. "Key decisions" sits below, shared by all views.
    - **Diagram** (`ArchitectureDiagram`): renders any `CloudView` as inline SVG from data only: nodes on a `col`/`row` grid (max 3 columns), rounded surface rects with display-font labels and mono sublabels; 1.5px muted edges with arrowheads (`dashed`, `twoWay` optional) and mono labels on bg chips. Never scales above 1:1. Below `sm` it switches to a single column with long edges in side lanes. `role="img"` with `<title>` and a `<desc>` generated from the edges. No gradients, glows or cloud-provider brand icons.
 3. **Certifications** — mono `CERTIFICATIONS` h2 label, `<ul>` of cards (1-col → `lg:grid-cols-2`, gap-4). Each card is one link to the Credly credential (new tab, visually hidden "(opens in a new tab)"): `rounded-2xl` `surface` card, 1px `border`; issuer badge stacked above the text below `sm`, beside it from `sm`; badge 80px → 96px at `md`, `alt=""`, lazy; mono issuer line, cert name as display h3, "Verify on Credly ↗" in mono `accent`. Hover/focus: border to `accent`, badge lifts 2px (off under reduced motion), subtle shadow. No pixel decoration.
-4. **Skills** — mono `SKILLS` h2 label (section id `skills`), row of rounded `surface` tiles with tech logos (react-icons/simple-icons), subtle hover lift.
+4. **Skills** — mono `SKILLS` h2 label (section id `skills`), then `skillGroups` from `src/data/skills.ts` in a grid: one column, `md:grid-cols-3`, `gap-8`, inside one `SectionReveal`.
+   - **Group:** mono uppercase h3 label (`EyebrowLabel as="h3"`), then a wrapping `<ul>` of chips (`flex-wrap gap-2`). Empty groups are skipped.
+   - **Chip** (`<li>`, not a link or button: no tabindex, no hover lift): `rounded-xl`, `surface` bg, 1px `border`, `px-3 py-2`. A 20px `aria-hidden` icon, then the name (Inter, `text-sm`, `text`).
+   - **Hover:** the icon is `muted` at rest and switches to the chip's brand color while the chip is hovered (a per-chip `--brand` CSS variable, 150ms, `motion-reduce:transition-none`). The border brightens slightly.
+   - **Brand colors:** each `color` must have at least 3:1 contrast against `surface` `#18181C`; lighten a brand color that falls short (Terraform `#7B42BC` → `#8651C1`). GitHub uses the `text` color, because its brand black would disappear.
+   - **Icon sources:** icons come from react-icons, Simple Icons (`Si*`) by default. Simple Icons removed the AWS and C# logos at the trademark owners' request, so AWS uses Font Awesome's `FaAws` and C# uses Tabler's `TbBrandCSharp`. Import only icons that are used, so unused ones never reach the bundle.
 5. **Education** — mono `EDUCATION` h2 label, same divided-list pattern as Experience: degree as display h3, school as an accent link (new tab, ↗), mono location, mono date right-aligned from `md`.
 6. **Experience** — mono `EXPERIENCE` h2 label, `<ul>` of companies with hairline `divide-y` dividers. Each company: name as display h3 (plain text, or an accent link opening in a new tab when `companyHref` is set) and a mono uppercase location; roles nested under it, so a promotion stays under one employer. Each role: title (Inter, medium, `text`), mono date range ("APR 2024 — DEC 2024", right-aligned on the title row from `md`, stacked below `md`), and a `muted` summary at max 60ch. No timeline graphics, connecting lines or cards.
 7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. 2× pixel trees bottom-right, rising on scroll, with the bird perched on the larger tree; hidden below `md`.

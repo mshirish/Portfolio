@@ -31,10 +31,24 @@ All copy lives in `src/data/*.ts`. Components never hardcode text.
 - `education.ts`: one entry per degree, with `degree`, `school`, `schoolHref`, `location` and `date`.
 - `links.ts`: the contact links in the footer, in display order. `mailto:` links open in the same tab; the rest open in a new tab.
 - `projects.ts`: one entry per project (see "To add a project" below for every field).
-- `skills.ts`: the Skills section's tech list (name and react-icons icon per entry).
+- `skills.ts`: the Skills section's groups of chips (see "To add a skill" below).
 - `certifications.ts`: one entry per certification (see below).
 
 Images used by data files live in `src/assets/` and are imported, not put in `public/`.
+
+An empty array hides its section and its nav link, so a section can be switched off by emptying its data.
+
+To add a skill:
+
+1. Find the icon on [react-icons](https://react-icons.github.io/react-icons/). Prefer Simple Icons (`Si…`, from `react-icons/si`). Simple Icons has no AWS or C# logo, so those use `FaAws` (`react-icons/fa`) and `TbBrandCSharp` (`react-icons/tb`).
+2. Import it at the top of `src/data/skills.ts`.
+3. Add one line to the right group's `items`:
+   ```ts
+   { name: "Kubernetes", icon: SiKubernetes, color: "#326CE5" },
+   ```
+   `color` is the icon's color on hover. It must have at least 3:1 contrast against the surface `#18181C`. If the brand color is darker than that, lighten it slightly (Terraform uses `#8651C1` instead of `#7B42BC`). For a black logo, use the text color `#F2F2EF`.
+
+To add a group, add an entry to `skillGroups` with a `label` and its `items`. Groups show in array order, three columns from `md`. A group with no items is skipped.
 
 To add a certification:
 
