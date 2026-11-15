@@ -12,7 +12,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden py-28 md:py-40"
+      className="section-y relative overflow-hidden pt-16 md:pt-24"
     >
       <div className="pointer-events-none absolute right-0 top-0 hidden select-none md:block">
         <motion.div className="absolute right-6 top-0" style={{ y: moonY }}>

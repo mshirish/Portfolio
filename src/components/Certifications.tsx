@@ -7,14 +7,14 @@ export function Certifications() {
     <section
       id="certifications"
       aria-labelledby="certifications-heading"
-      className="py-28 md:py-40"
+      className="section-y"
     >
       <SectionReveal>
         <EyebrowLabel as="h2" id="certifications-heading">
           Certifications
         </EyebrowLabel>
 
-        <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <ul className="mt-6 md:mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
           {certifications.map((cert) => (
             <li key={cert.credentialUrl}>
               <a

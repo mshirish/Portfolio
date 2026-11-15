@@ -21,9 +21,10 @@ export function Footer() {
       className="relative overflow-hidden"
     >
       {/* Padding lives here so the container's bottom is the footer's bottom edge, where
-          the trees stand. md:pb-40 (160px) is taller than trees + bird (104px at pixelSize 8),
-          so they never reach the text above at any width. */}
-      <div className="relative mx-auto max-w-[1080px] px-6 py-28 md:py-40">
+          the trees stand. Big tree (9 rows) + bird (4 rows) at pixelSize 8 = 104px, plus the
+          bird's 3px bob = 107px; md:pb-28 (112px) clears that, so the art never reaches the
+          © line or links. Below md the trees are hidden and section-y applies. */}
+      <div className="section-y relative mx-auto max-w-[1080px] px-6 md:pb-28">
         <SectionReveal>
           <EyebrowLabel withDot>
             {site.status} · {site.location}

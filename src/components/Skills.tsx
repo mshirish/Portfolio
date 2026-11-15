@@ -3,7 +3,7 @@ import { SectionReveal } from "./SectionReveal"
 
 export function Skills() {
   return (
-    <section id="skills" aria-labelledby="skills-heading" className="py-28 md:py-40">
+    <section id="skills" aria-labelledby="skills-heading" className="section-y">
       <SectionReveal>
         <EyebrowLabel as="h2" id="skills-heading">
           Skills

@@ -14,6 +14,18 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+/* The one vertical rhythm for page sections: half the gap between two sections.
+   2rem + 2rem = 64px between sections on mobile, 3rem + 3rem = 96px from md up.
+   Change spacing here, never per section. Hero and Footer override one side only. */
+@utility section-y {
+  padding-block: 2rem;
+  scroll-margin-top: 1.5rem;
+
+  @variant md {
+    padding-block: 3rem;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);

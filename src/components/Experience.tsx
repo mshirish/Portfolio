@@ -8,14 +8,14 @@ export function Experience() {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="py-28 md:py-40"
+      className="section-y"
     >
       <SectionReveal>
         <EyebrowLabel as="h2" id="experience-heading">
           Experience
         </EyebrowLabel>
 
-        <ul className="mt-10 divide-y divide-border">
+        <ul className="mt-6 md:mt-8 divide-y divide-border">
           {experience.map((item) => (
             <li key={item.company} className="py-10 first:pt-0 last:pb-0">
               <h3 className="font-display text-xl font-semibold tracking-[-0.03em] text-text md:text-2xl">

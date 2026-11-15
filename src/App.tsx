@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, type ComponentType } from "react"
 import { Hero } from "./components/Hero"
 import { Projects } from "./components/Projects"
 import { Certifications } from "./components/Certifications"
@@ -6,13 +6,26 @@ import { Skills } from "./components/Skills"
 import { Education } from "./components/Education"
 import { Experience } from "./components/Experience"
 import { Footer } from "./components/Footer"
+import { projects } from "./data/projects"
+import { certifications } from "./data/certifications"
+import { skills } from "./data/skills"
+import { education } from "./data/education"
+import { experience } from "./data/experience"
+
+// One list drives both the page and the nav: a section whose data is empty is left out
+// of both, so there's never a nav link to a missing section.
+const SECTIONS: { id: string; label: string; Component: ComponentType; items: readonly unknown[] }[] = [
+  { id: "projects", label: "Projects", Component: Projects, items: projects },
+  { id: "certifications", label: "Certifications", Component: Certifications, items: certifications },
+  { id: "skills", label: "Skills", Component: Skills, items: skills },
+  { id: "education", label: "Education", Component: Education, items: education },
+  { id: "experience", label: "Experience", Component: Experience, items: experience },
+]
+
+const visibleSections = SECTIONS.filter((section) => section.items.length > 0)
 
 const NAV_LINKS = [
-  { label: "Projects", href: "#projects" },
-  { label: "Certifications", href: "#certifications" },
-  { label: "Skills", href: "#skills" },
-  { label: "Education", href: "#education" },
-  { label: "Experience", href: "#experience" },
+  ...visibleSections.map(({ id, label }) => ({ label, href: `#${id}` })),
   { label: "Contact", href: "#contact" },
 ]
 
@@ -46,11 +59,9 @@ function App() {
 
       <main className="mx-auto max-w-[1080px] px-6">
         <Hero />
-        <Projects />
-        <Certifications />
-        <Skills />
-        <Education />
-        <Experience />
+        {visibleSections.map(({ id, Component }) => (
+          <Component key={id} />
+        ))}
       </main>
 
       <Footer />

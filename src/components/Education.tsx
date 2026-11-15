@@ -8,14 +8,14 @@ export function Education() {
     <section
       id="education"
       aria-labelledby="education-heading"
-      className="py-28 md:py-40"
+      className="section-y"
     >
       <SectionReveal>
         <EyebrowLabel as="h2" id="education-heading">
           Education
         </EyebrowLabel>
 
-        <ul className="mt-10 divide-y divide-border">
+        <ul className="mt-6 md:mt-8 divide-y divide-border">
           {education.map((item) => (
             <li key={item.degree} className="py-10 first:pt-0 last:pb-0">
               <div className="flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between md:gap-6">
