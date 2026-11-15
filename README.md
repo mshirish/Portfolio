@@ -30,7 +30,7 @@ All copy lives in `src/data/*.ts`. Components never hardcode text.
 - `experience.ts`: one entry per company, with `company`, `location`, an optional `companyHref` (the company shows as plain text without it, as a link with it) and a `roles` list. Each role has `title`, `start`, `end` and `summary`; put a promotion as another role under the same company, newest first.
 - `education.ts`: one entry per degree, with `degree`, `school`, `schoolHref`, `location` and `date`.
 - `links.ts`: the contact links in the footer, in display order. `mailto:` links open in the same tab; the rest open in a new tab.
-- `projects.ts`: one entry per project, with card fields (`name`, `summary`, `tech`, `backdrop`, `images`), links (`repoUrl`, optional `demoUrl`, `demoNote`) and an optional `caseStudy` (overview, what I built, cloud diagram views and key decisions, known limitations). Diagram nodes sit on a `col`/`row` grid of up to 3 columns.
+- `projects.ts`: one entry per project (see "To add a project" below for every field).
 - `skills.ts`: the Skills section's tech list (name and react-icons icon per entry).
 - `certifications.ts`: one entry per certification (see below).
 
@@ -52,7 +52,36 @@ To add a project:
    ```sh
    npx --yes sharp-cli -i media/captures/<slug>/01-storefront.png -o src/assets/projects/<slug>/1.webp resize 800
    ```
-3. Import them in `projects.ts` and add an entry. Every case-study claim must be checkable in the project's own repo.
+3. Import them in `projects.ts` and add an entry, with `draft: true` until it's verified (see below). Every case-study claim must be checkable in the project's own repo.
+
+Required fields:
+
+| Field | What it is |
+|---|---|
+| `slug` | URL id: the modal opens at `/#project/<slug>` |
+| `name`, `subtitle` | Card and modal title; the subtitle shows under the modal title |
+| `summary` | One or two sentences for the card |
+| `tech` | List shown as the mono tech line |
+| `backdrop` | Hex color of the card's folder |
+| `images` | Up to three imported screenshots; `images[0]` is the front sheet and the modal's media |
+| `repoUrl` | Source code link ("Code ↗" on the card, "View source code ↗" in the modal) |
+
+Optional fields (each section of the modal only appears when its field is set):
+
+| Field | What it does |
+|---|---|
+| `demoUrl` | "Live demo ↗" on the card and the "Try it yourself" button. Without it the modal shows "Live demo · soon". Demos are only linked to, never embedded. |
+| `demoNote` | Longer note under the demo button (how to sign in, quotas) |
+| `wakeNote` | One short line for demos on free hosting that sleep ("the first load can take about a minute"), on the card and in the modal |
+| `warmupUrl` | A cheap endpoint on the demo's backend. It's fetched once per page view, when the card scrolls into view or its modal opens, so the backend is awake by the time someone clicks. Skipped for visitors with Save-Data on. |
+| `howItWorks` | Ordered steps, shown as a numbered list |
+| `credits` | `{ text, name, href, detail? }` for a project built with someone else. Their name shows on the card and, linked, in the modal; `detail` says what they built. Always credit collaborators. |
+| `extraLinks` | `{ label, href }[]`: more links beside "View source code" |
+| `gallery` | `{ title, items }`, each item `{ src, alt, caption, width, height }` (imported image and its intrinsic size) |
+| `video` | `{ src, poster, description }`, shown in place of `images[0]` in the modal |
+| `caseStudy` | `{ overview, built, cloud?, limitations? }`. `cloud` is `{ views, decisions }`: one view renders as a single "Architecture" diagram, several get tabs. Diagram nodes sit on a `col`/`row` grid of up to 3 columns. |
+
+If the site ever gets a Content-Security-Policy, add each `warmupUrl` origin to `connect-src`.
 
 ### Draft projects
 
@@ -110,7 +139,7 @@ src/
   components/         one file per page section
     pixel/            pixel-art SVG decorations
   data/               all site copy
-  hooks/              useParallax, useTargetParallax
+  hooks/              useParallax, useTargetParallax, useProjectRoute, useWarmup
 media/                   local-only capture tooling (separate npm project)
 Dockerfile, nginx.conf   container image
 .github/workflows/       CI
