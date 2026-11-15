@@ -8,7 +8,7 @@ import { Experience } from "./components/Experience"
 import { Footer } from "./components/Footer"
 import { projects } from "./data/projects"
 import { certifications } from "./data/certifications"
-import { skills } from "./data/skills"
+import { skillGroups } from "./data/skills"
 import { education } from "./data/education"
 import { experience } from "./data/experience"
 
@@ -17,7 +17,7 @@ import { experience } from "./data/experience"
 const SECTIONS: { id: string; label: string; Component: ComponentType; items: readonly unknown[] }[] = [
   { id: "projects", label: "Projects", Component: Projects, items: projects },
   { id: "certifications", label: "Certifications", Component: Certifications, items: certifications },
-  { id: "skills", label: "Skills", Component: Skills, items: skills },
+  { id: "skills", label: "Skills", Component: Skills, items: skillGroups.filter((group) => group.items.length > 0) },
   { id: "education", label: "Education", Component: Education, items: education },
   { id: "experience", label: "Experience", Component: Experience, items: experience },
 ]
