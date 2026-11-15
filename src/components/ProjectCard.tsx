@@ -1,5 +1,6 @@
-import type { Ref } from "react"
+import { useRef, type Ref } from "react"
 import type { Project } from "../data/projects"
+import { useWarmupOnView } from "../hooks/useWarmup"
 import { DraftTag } from "./DraftTag"
 import { ExternalLink } from "./ExternalLink"
 
@@ -37,8 +38,11 @@ export function ProjectCard({
   onOpen: () => void
   ref?: Ref<HTMLButtonElement>
 }) {
+  const article = useRef<HTMLElement>(null)
+  useWarmupOnView(article, project.warmupUrl)
+
   return (
-    <article className="group relative h-full">
+    <article ref={article} className="group relative h-full">
       <div className="relative aspect-[4/3]">
         {/* Back panel and its tab */}
         <div

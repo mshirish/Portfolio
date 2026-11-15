@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { projects } from "../data/projects"
 import { useProjectRoute } from "../hooks/useProjectRoute"
+import { warmUp } from "../hooks/useWarmup"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ProjectCard } from "./ProjectCard"
 import { ProjectModal } from "./ProjectModal"
@@ -13,7 +14,10 @@ export function Projects() {
   const lastOpened = useRef<string | null>(null)
 
   useEffect(() => {
-    if (openProject) lastOpened.current = openProject.slug
+    if (!openProject) return
+    lastOpened.current = openProject.slug
+    // Also covers a deep link (#project/{slug}) opened before the card is ever seen.
+    warmUp(openProject.warmupUrl)
   }, [openProject])
 
   return (
