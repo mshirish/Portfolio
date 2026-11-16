@@ -1,28 +1,39 @@
 /**
  * Pixel colors are roles, not hex values. Each role maps to a CSS custom
- * property `--px-<role>` defined in src/index.css, so a second palette (day
+ * property `--px-<role>` defined in src/index.css, so a second palette (light
  * mode) only has to redefine the variables.
  */
 export const PIXEL_ROLES = [
+  // Moon and stars
   "moon",
   "moon-shade",
   "moon-crater",
-  "cloud-light",
-  "cloud",
-  "cloud-shade",
   "star",
+  "star-dim",
+  // Sun (future light mode)
   "sun",
   "sun-shade",
-  "foliage-light",
-  "foliage",
-  "foliage-dark",
-  "trunk",
+  // Planets: amber ringed, small rust-red, ice-blue
+  "planet-sand",
+  "planet-sand-shade",
+  "planet-rust",
+  "planet-rust-shade",
+  "planet-ice",
+  "planet-ice-shade",
+  "ring",
+  "ring-shade",
+  // Rockets
+  "rocket-body",
+  "rocket-trim",
+  "rocket-window",
+  "flame-hot",
+  "flame",
+  // Hardware and surfaces
+  "metal",
+  "metal-shade",
   "ground",
-  "lamp-post",
-  "lamp-light",
-  "fur-light",
-  "fur",
-  "eye",
+  "ground-shade",
+  "crater",
 ] as const
 
 export type PixelRole = (typeof PIXEL_ROLES)[number]

@@ -14,59 +14,67 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
-/* Pixel-art color roles. Sprites name a role (`moon`, `foliage`...) and render
-   fill="var(--px-<role>)", never a hex value. These are the night values.
-   Every value is one solid color: no gradients, glow or blur. */
+/* Pixel-art color roles for the space scene. Sprites name a role (`moon`,
+   `rocket-body`...) and render fill="var(--px-<role>)", never a hex value.
+   These are the dark-mode values. Every value is one solid color: no
+   gradients, glow or blur. */
 :root {
   --px-moon: #edf4fb;
   --px-moon-shade: #b9bccb;
   --px-moon-crater: #d9d9e3;
 
-  --px-cloud-light: #edf4fb;
-  --px-cloud: #bfd9f2;
-  --px-cloud-shade: #8fbce6;
-
   --px-star: #edf4fb;
+  /* Background starfield: 1.6:1 or less against the page bg, so it reads as
+     texture behind text. */
+  --px-star-dim: #33333c;
 
-  /* Sun: drawn for day mode (PixelSun), not rendered at night. */
+  /* Sun: drawn for a future light mode (PixelSun), not rendered yet. */
   --px-sun: #f6c453;
   --px-sun-shade: #e09f3e;
 
-  --px-foliage-light: #6fb46b;
-  --px-foliage: #4e9a51;
-  --px-foliage-dark: #2f6b39;
-  --px-trunk: #8a5a32;
-  --px-ground: #1f2a22;
+  --px-planet-sand: #e3b871;
+  --px-planet-sand-shade: #b8864a;
+  --px-planet-rust: #c2573a;
+  --px-planet-rust-shade: #8a3a28;
+  --px-planet-ice: #bfd9f2;
+  --px-planet-ice-shade: #8fbce6;
+  --px-ring: #d9c49a;
+  --px-ring-shade: #9e8a63;
 
-  --px-lamp-post: #4a4a55;
-  --px-lamp-light: #f4d58d;
+  --px-rocket-body: #edf4fb;
+  --px-rocket-trim: #e0574a;
+  --px-rocket-window: #7c8cf8;
+  --px-flame-hot: #fff1b8;
+  --px-flame: #f2994a;
 
-  /* Animals (the perched bird for now; Tiny Creatures roles join in later). */
-  --px-fur-light: #edf4fb;
-  --px-fur: #8a5a32;
-  --px-eye: #26262c;
+  --px-metal: #9a9aa6;
+  --px-metal-shade: #5c5c68;
+  --px-ground: #4a4a55;
+  --px-ground-shade: #34343c;
+  --px-crater: #2a2a31;
 }
 
-/* Day palette goes here, with the same role names, when the day/night toggle
-   lands. Not defined yet:
-   :root[data-theme="day"] {
-     --px-moon: ...;
-   }
-*/
-
-/* Slow horizontal cloud drift, in whole-pixel steps so the art stays crisp.
-   Set --px-drift (px), --px-drift-steps (= |drift|) and --px-drift-duration. */
-@keyframes px-drift {
-  to {
-    transform: translateX(var(--px-drift));
+/* Star twinkle: opacity 1 → 0.45 → 1 in steps, never a smooth fade. Each star
+   sets --px-twinkle-duration (2–6s) and --px-twinkle-delay. Off under reduced
+   motion, where every star stays fully lit. */
+@keyframes px-twinkle {
+  50% {
+    opacity: 0.45;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .px-drift {
-    animation: px-drift var(--px-drift-duration) steps(var(--px-drift-steps)) infinite alternate;
+  .px-twinkle {
+    animation: px-twinkle var(--px-twinkle-duration) steps(3, jump-none) var(--px-twinkle-delay) infinite;
   }
 }
+
+/* Light-mode values go here, with the same role names, when the theme toggle
+   lands. Not defined yet:
+   :root[data-theme="light"] {
+     --px-moon: ...;
+   }
+*/
 
 /* The one vertical rhythm for page sections: half the gap between two sections.
    2rem + 2rem = 64px between sections on mobile, 3rem + 3rem = 96px from md up.

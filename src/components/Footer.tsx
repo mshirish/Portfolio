@@ -4,8 +4,6 @@ import { site } from "../data/site"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
-import { PixelBird } from "./pixel/PixelBird"
-import { PixelTrees } from "./pixel/PixelTrees"
 
 const LINK_CLASS = "text-muted transition-colors hover:text-accent focus-visible:text-accent"
 
@@ -21,9 +19,8 @@ export function Footer() {
       className="relative overflow-hidden"
     >
       {/* Padding lives here so the container's bottom is the footer's bottom edge, where
-          the trees stand. Big tree (9 rows) + bird (4 rows) at pixelSize 8 = 104px, plus the
-          bird's 3px bob = 107px; md:pb-28 (112px) clears that, so the art never reaches the
-          © line or links. Below md the trees are hidden and section-y applies. */}
+          the footer art stands. md:pb-28 (112px) keeps the © line clear of it. Below md the
+          art is hidden and section-y applies. */}
       <div className="section-y relative mx-auto max-w-[1080px] px-6 md:pb-28">
         <SectionReveal>
           <EyebrowLabel withDot>
@@ -58,12 +55,6 @@ export function Footer() {
           </p>
         </SectionReveal>
 
-        <PixelTrees
-          target={footerRef}
-          pixelSize={8}
-          perch={<PixelBird pixelSize={8} />}
-          className="pointer-events-none absolute bottom-0 right-6 hidden select-none md:block"
-        />
       </div>
     </footer>
   )

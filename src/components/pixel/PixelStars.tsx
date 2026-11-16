@@ -1,26 +1,13 @@
+import type { CSSProperties } from "react"
 import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
 import { emptyGrid } from "./pixelShapes"
 
-const PIXEL_SIZE = 4
-const WIDTH = 84 // cells: 336px, the hero sky column
-const HEIGHT = 44 // cells: 176px
+/** A foreground star in cells: a single pixel, or a plus shape centered on (x, y). */
+export type Star = { x: number; y: number; plus?: boolean; twinkle?: boolean }
 
-// [x, y, plus-shaped?] in cells. Kept off the moon (top-right) and the clouds.
-const STARS: [number, number, boolean][] = [
-  [4, 3, true],
-  [17, 9, false],
-  [30, 2, false],
-  [43, 7, true],
-  [52, 1, false],
-  [36, 14, false],
-  [8, 15, false],
-  [24, 18, true],
-  [80, 38, false],
-]
-
-function starsGrid(): PixelGrid {
-  const grid = emptyGrid(WIDTH, HEIGHT)
-  for (const [x, y, plus] of STARS) {
+function starGrid(width: number, height: number, stars: Star[]): PixelGrid {
+  const grid = emptyGrid(width, height)
+  for (const { x, y, plus } of stars) {
     grid[y][x] = "star"
     if (plus) {
       grid[y - 1][x] = "star"
@@ -32,20 +19,74 @@ function starsGrid(): PixelGrid {
   return grid
 }
 
-const grid = starsGrid()
-const { width, height } = gridSize(grid, PIXEL_SIZE)
+/**
+ * A cluster of foreground stars. Stars marked `twinkle` blink with stepped
+ * opacity (the .px-twinkle keyframes in index.css), each on its own 2–6s
+ * cycle and offset, so they never blink together. `seed` varies the timing
+ * between clusters.
+ */
+export function StarCluster({
+  width,
+  height,
+  stars,
+  seed = 0,
+  pixelSize = 4,
+  className,
+}: {
+  /** Size in cells. */
+  width: number
+  height: number
+  stars: Star[]
+  seed?: number
+  pixelSize?: number
+  className?: string
+}) {
+  const steady = starGrid(width, height, stars.filter((s) => !s.twinkle))
+  const twinkling = stars.filter((s) => s.twinkle)
+  const size = gridSize(steady, pixelSize)
 
-export function PixelStars({ className }: { className?: string }) {
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
-      width={width}
-      height={height}
+      viewBox={`0 0 ${size.width} ${size.height}`}
+      width={size.width}
+      height={size.height}
       className={className}
       style={{ shapeRendering: "crispEdges" }}
       aria-hidden="true"
     >
-      {renderPixelGrid(grid, PIXEL_SIZE)}
+      {renderPixelGrid(steady, pixelSize)}
+      {twinkling.map((star, i) => {
+        const k = i + seed * 3 + 1
+        const duration = 2 + ((k * 1.37) % 4) // 2–6s
+        const delay = -((k * 0.83) % duration) // start mid-cycle, out of step
+        const timing = {
+          "--px-twinkle-duration": `${duration.toFixed(2)}s`,
+          "--px-twinkle-delay": `${delay.toFixed(2)}s`,
+        } as CSSProperties
+        return (
+          <g key={`${star.x}-${star.y}`} className="px-twinkle" style={timing}>
+            {renderPixelGrid(starGrid(width, height, [star]), pixelSize)}
+          </g>
+        )
+      })}
     </svg>
   )
+}
+
+// The hero's stars, in cells (336×176px). Kept off the moon (top-right).
+// About a quarter twinkle.
+const HERO_STARS: Star[] = [
+  { x: 4, y: 3, plus: true },
+  { x: 17, y: 9, twinkle: true },
+  { x: 30, y: 2 },
+  { x: 43, y: 7, plus: true },
+  { x: 52, y: 1 },
+  { x: 36, y: 14, twinkle: true },
+  { x: 8, y: 15 },
+  { x: 24, y: 18, plus: true },
+  { x: 80, y: 38 },
+]
+
+export function PixelStars({ className }: { className?: string }) {
+  return <StarCluster width={84} height={44} stars={HERO_STARS} className={className} />
 }
