@@ -11,6 +11,7 @@ import { certifications } from "./data/certifications"
 import { skillGroups } from "./data/skills"
 import { education } from "./data/education"
 import { experience } from "./data/experience"
+import { Starfield } from "./components/pixel/Starfield"
 
 // One list drives both the page and the nav: a section whose data is empty is left out
 // of both, so there's never a nav link to a missing section.
@@ -39,7 +40,11 @@ function App() {
   }, [])
 
   return (
-    <>
+    // isolate: the starfield's -z-10 stays inside this stacking context, above the
+    // body background and below every section.
+    <div className="relative isolate">
+      <Starfield />
+
       <header className="mx-auto max-w-[1080px] px-6 pt-8">
         <nav
           aria-label="Section navigation"
@@ -65,7 +70,7 @@ function App() {
       </main>
 
       <Footer />
-    </>
+    </div>
   )
 }
 
