@@ -59,7 +59,7 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
    - **Content order** (each section renders only when its data is set):
      1. Name + subtitle, then the `credits` line (`credits.text` + the collaborator's name as an accent link).
      2. 16:10 media slot (`video` when set, else `images[0]`).
-     3. Links row: "Try it yourself ↗" accent pill (new tab) or a muted "Live demo · soon"; "View source code ↗"; each of `extraLinks` ↗. Then `wakeNote` (mono, `text` color) and `demoNote` (mono, `muted`).
+     3. Links row: "Try it yourself ↗" accent pill (new tab) or a muted "Live demo · soon"; "View source code ↗"; each of `extraLinks` ↗. Then `wakeNote` (mono, `text` color) and `demoNote` (mono, `muted`). `wakeNote` holds the cold-start sentence; `demoNote` never repeats it.
      4. Overview.
      5. How it works: `howItWorks` as a numbered list.
      6. What I built.

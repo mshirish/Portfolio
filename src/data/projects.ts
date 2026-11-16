@@ -93,7 +93,7 @@ export const projects: Project[] = [
     repoUrl: "https://github.com/mshirish/Store-Website",
     demoUrl: "https://levant-table.onrender.com",
     demoNote:
-      "Stripe test mode: card 4242 4242 4242 4242, any future date, any CVC. Free hosting, so the first load can take about a minute.",
+      "Stripe test mode: card 4242 4242 4242 4242, any future date, any CVC.",
     wakeNote: "Free hosting: the first load can take about a minute.",
     extraLinks: [
       {
@@ -228,7 +228,7 @@ export const projects: Project[] = [
     demoUrl: "https://dev-pilot-blush.vercel.app/login",
     wakeNote: "Free hosting: the first load can take 1–2 minutes.",
     demoNote:
-      "Click “Try the live demo” on the sign-in page; no sign-up needed. The server sleeps when idle, so the first load can take 1–2 minutes. If the day's free AI quota is used up, the demo says so; try again tomorrow.",
+      "Click “Try the live demo” on the sign-in page; no sign-up needed. If the day's free AI quota is used up, the demo says so; try again tomorrow.",
     warmupUrl: "https://dev-pilot-blush.vercel.app/api/auth/config",
     credits: {
       text: "Capstone project at Clark University, built with",
