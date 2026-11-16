@@ -15,6 +15,7 @@ export const PIXEL_ROLES = [
   "sun-shade",
   // Planets: amber ringed, small rust-red, ice-blue
   "planet-sand",
+  "planet-sand-band",
   "planet-sand-shade",
   "planet-rust",
   "planet-rust-shade",

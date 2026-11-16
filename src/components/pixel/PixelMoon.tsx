@@ -1,4 +1,6 @@
-import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
+import type { CSSProperties } from "react"
+import type { PixelGrid } from "./pixelGrid"
+import { PixelSprite } from "./PixelSprite"
 import { emptyGrid, inDisc } from "./pixelShapes"
 
 const PIXEL_SIZE = 4
@@ -30,19 +32,7 @@ function moonGrid(): PixelGrid {
 }
 
 const grid = moonGrid()
-const { width, height } = gridSize(grid, PIXEL_SIZE)
 
-export function PixelMoon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      width={width}
-      height={height}
-      className={className}
-      style={{ shapeRendering: "crispEdges" }}
-      aria-hidden="true"
-    >
-      {renderPixelGrid(grid, PIXEL_SIZE)}
-    </svg>
-  )
+export function PixelMoon({ className, style }: { className?: string; style?: CSSProperties }) {
+  return <PixelSprite grid={grid} pixelSize={PIXEL_SIZE} className={className} style={style} />
 }

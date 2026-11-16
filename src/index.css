@@ -33,7 +33,8 @@
   --px-sun-shade: #e09f3e;
 
   --px-planet-sand: #e3b871;
-  --px-planet-sand-shade: #b8864a;
+  --px-planet-sand-band: #cc9d5c;
+  --px-planet-sand-shade: #9c6f3c;
   --px-planet-rust: #c2573a;
   --px-planet-rust-shade: #8a3a28;
   --px-planet-ice: #bfd9f2;
@@ -66,6 +67,55 @@
 @media (prefers-reduced-motion: no-preference) {
   .px-twinkle {
     animation: px-twinkle var(--px-twinkle-duration) steps(3, jump-none) var(--px-twinkle-delay) infinite;
+  }
+}
+
+/* Bob for floating art (moon, planets, rockets in flight, satellites...):
+   0 to -3px and back, alternating. Whole-pixel steps; the uneven keyframe
+   spacing dwells at both ends, approximating ease-in-out without fractional
+   offsets. Each sprite sets its own --px-bob-duration (3–5s) and
+   --px-bob-delay so nothing moves in sync. Grounded art doesn't bob. */
+@keyframes px-bob {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-1px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  70%,
+  100% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .px-bob {
+    animation: px-bob var(--px-bob-duration) steps(1, jump-end) var(--px-bob-delay) infinite alternate;
+  }
+}
+
+/* Shooting star: one crossing in 18 whole-pixel hops (12px left, 4px down
+   each) over 0.8s, then hidden. ShootingStar sets --px-shoot-x/-y. */
+@keyframes px-shoot {
+  to {
+    transform: translate(var(--px-shoot-x), var(--px-shoot-y));
+  }
+}
+
+@keyframes px-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .px-shoot {
+    animation:
+      px-shoot 0.8s steps(18, jump-end) forwards,
+      px-hide 0.8s steps(1, jump-end) forwards;
   }
 }
 
