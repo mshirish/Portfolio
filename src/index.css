@@ -14,6 +14,42 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+/* Pixel-art color roles. Sprites name a role (`moon`, `foliage`...) and render
+   fill="var(--px-<role>)", never a hex value. These are the night values.
+   Every value is one solid color: no gradients, glow or blur. */
+:root {
+  --px-moon: #edf4fb;
+  --px-moon-shade: #b9bccb;
+  --px-moon-crater: #d9d9e3;
+
+  --px-cloud-light: #edf4fb;
+  --px-cloud: #bfd9f2;
+  --px-cloud-shade: #8fbce6;
+
+  --px-star: #edf4fb;
+
+  --px-foliage-light: #6fb46b;
+  --px-foliage: #4e9a51;
+  --px-foliage-dark: #2f6b39;
+  --px-trunk: #8a5a32;
+  --px-ground: #1f2a22;
+
+  --px-lamp-post: #4a4a55;
+  --px-lamp-light: #f4d58d;
+
+  /* Animals (the perched bird for now; Tiny Creatures roles join in later). */
+  --px-fur-light: #edf4fb;
+  --px-fur: #8a5a32;
+  --px-eye: #26262c;
+}
+
+/* Day palette goes here, with the same role names, when the day/night toggle
+   lands. Not defined yet:
+   :root[data-theme="day"] {
+     --px-moon: ...;
+   }
+*/
+
 /* The one vertical rhythm for page sections: half the gap between two sections.
    2rem + 2rem = 64px between sections on mobile, 3rem + 3rem = 96px from md up.
    Change spacing here, never per section. Hero and Footer override one side only. */

@@ -1,9 +1,9 @@
 import { motion, useReducedMotion } from "framer-motion"
-import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
+import { renderPixelGrid, gridSize, type PixelGrid, type PixelRole } from "./pixelGrid"
 
-const BODY = "#8A5A32"
-const BELLY = "#EDF4FB"
-const EYE = "#26262C"
+const BODY: PixelRole = "fur"
+const BELLY: PixelRole = "fur-light"
+const EYE: PixelRole = "eye"
 
 const n = null
 

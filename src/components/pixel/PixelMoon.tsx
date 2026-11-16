@@ -1,7 +1,7 @@
-import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
+import { renderPixelGrid, gridSize, type PixelGrid, type PixelRole } from "./pixelGrid"
 
-const MOON = "#EDF4FB"
-const SHADE = "#D9D9E3"
+const MOON: PixelRole = "moon"
+const SHADE: PixelRole = "moon-crater"
 
 const PIXEL_SIZE = 4
 

@@ -1,11 +1,11 @@
 import { motion } from "framer-motion"
 import type { ReactNode, RefObject } from "react"
 import { useTargetParallax } from "../../hooks/useParallax"
-import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
+import { renderPixelGrid, gridSize, type PixelGrid, type PixelRole } from "./pixelGrid"
 
-const LEAF_LIGHT = "#4E9A51"
-const LEAF_DARK = "#2F6B39"
-const TRUNK = "#8A5A32"
+const LEAF_LIGHT: PixelRole = "foliage"
+const LEAF_DARK: PixelRole = "foliage-dark"
+const TRUNK: PixelRole = "trunk"
 
 const n = null
 

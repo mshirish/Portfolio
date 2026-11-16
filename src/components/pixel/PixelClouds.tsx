@@ -1,19 +1,19 @@
 import { motion, useReducedMotion } from "framer-motion"
 import { useParallax } from "../../hooks/useParallax"
-import { renderPixelGrid, gridSize, type PixelGrid } from "./pixelGrid"
+import { renderPixelGrid, gridSize, type PixelGrid, type PixelRole } from "./pixelGrid"
 
-const WHITE = "#EDF4FB"
-const BLUE_LIGHT = "#BFD9F2"
-const BLUE_DARK = "#8FBCE6"
+const WHITE: PixelRole = "cloud-light"
+const BLUE_LIGHT: PixelRole = "cloud"
+const BLUE_DARK: PixelRole = "cloud-shade"
 
 const PIXEL_SIZE = 4
 
 function cloudGrid(cols: number): PixelGrid {
   const pad = Math.max(0, Math.floor((cols - 10) / 2))
-  const row = (colors: (string | null)[]) => {
+  const row = (colors: (PixelRole | null)[]) => {
     const left = Array(pad).fill(null)
     const right = Array(cols - pad - colors.length).fill(null)
-    return [...left, ...colors, ...right] as (string | null)[]
+    return [...left, ...colors, ...right] as (PixelRole | null)[]
   }
 
   return [
