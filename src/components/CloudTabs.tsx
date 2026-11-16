@@ -11,7 +11,7 @@ function ViewContent({ view }: { view: CloudView }) {
       <div className="mt-4">
         <ArchitectureDiagram view={view} />
       </div>
-      <p className="mt-4 max-w-[60ch] text-sm text-muted">{view.caption}</p>
+      <p className="mt-4 text-sm text-muted">{view.caption}</p>
       {view.note && <p className="mt-2 font-mono text-xs leading-relaxed text-muted">{view.note}</p>}
     </>
   )
@@ -103,7 +103,7 @@ export function CloudTabs({ views, decisions }: { views: CloudView[]; decisions:
 
       <div className="mt-8">
         <EyebrowLabel as="h4">Key decisions</EyebrowLabel>
-        <ul className="mt-4 max-w-[70ch] list-disc space-y-3 pl-5 text-muted marker:text-border">
+        <ul className="mt-4 list-disc space-y-3 pl-5 text-muted marker:text-border">
           {decisions.map((decision) => (
             <li key={decision}>{decision}</li>
           ))}

@@ -105,7 +105,7 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
 
 function BulletList({ items }: { items: string[] }) {
   return (
-    <ul className="max-w-[70ch] list-disc space-y-3 pl-5 text-muted marker:text-border">
+    <ul className="list-disc space-y-3 pl-5 text-muted marker:text-border">
       {items.map((item) => (
         <li key={item}>{item}</li>
       ))}
@@ -225,20 +225,20 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
         <p className="mt-3 font-mono text-xs leading-relaxed text-text">{project.wakeNote}</p>
       )}
       {project.demoNote && (
-        <p className="mt-2 max-w-[70ch] font-mono text-xs leading-relaxed text-muted">{project.demoNote}</p>
+        <p className="mt-2 font-mono text-xs leading-relaxed text-muted">{project.demoNote}</p>
       )}
 
       {/* 4. Overview */}
       {caseStudy && (
         <Section label="Overview">
-          <p className="max-w-[70ch] text-muted">{caseStudy.overview}</p>
+          <p className="text-muted">{caseStudy.overview}</p>
         </Section>
       )}
 
       {/* 5. How it works */}
       {project.howItWorks && project.howItWorks.length > 0 && (
         <Section label="How it works">
-          <ol className="max-w-[70ch] list-decimal space-y-3 pl-5 text-muted marker:font-mono marker:text-accent">
+          <ol className="list-decimal space-y-3 pl-5 text-muted marker:font-mono marker:text-accent">
             {project.howItWorks.map((step) => (
               <li key={step} className="pl-1">
                 {step}
@@ -299,7 +299,7 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
       {/* 9. Built with */}
       {credits?.detail && (
         <Section label="Built with">
-          <p className="max-w-[70ch] text-muted">
+          <p className="text-muted">
             <WithNameLinked text={credits.detail} name={credits.name} href={credits.href} />
           </p>
         </Section>
