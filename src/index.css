@@ -28,6 +28,10 @@
 
   --px-star: #edf4fb;
 
+  /* Sun: drawn for day mode (PixelSun), not rendered at night. */
+  --px-sun: #f6c453;
+  --px-sun-shade: #e09f3e;
+
   --px-foliage-light: #6fb46b;
   --px-foliage: #4e9a51;
   --px-foliage-dark: #2f6b39;
@@ -49,6 +53,20 @@
      --px-moon: ...;
    }
 */
+
+/* Slow horizontal cloud drift, in whole-pixel steps so the art stays crisp.
+   Set --px-drift (px), --px-drift-steps (= |drift|) and --px-drift-duration. */
+@keyframes px-drift {
+  to {
+    transform: translateX(var(--px-drift));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .px-drift {
+    animation: px-drift var(--px-drift-duration) steps(var(--px-drift-steps)) infinite alternate;
+  }
+}
 
 /* The one vertical rhythm for page sections: half the gap between two sections.
    2rem + 2rem = 64px between sections on mobile, 3rem + 3rem = 96px from md up.

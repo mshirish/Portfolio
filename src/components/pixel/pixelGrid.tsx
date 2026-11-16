@@ -11,6 +11,8 @@ export const PIXEL_ROLES = [
   "cloud",
   "cloud-shade",
   "star",
+  "sun",
+  "sun-shade",
   "foliage-light",
   "foliage",
   "foliage-dark",

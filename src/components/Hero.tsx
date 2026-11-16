@@ -1,27 +1,15 @@
-import { motion } from "framer-motion"
 import { site } from "../data/site"
-import { useParallax } from "../hooks/useParallax"
-import { PixelClouds } from "./pixel/PixelClouds"
-import { PixelMoon } from "./pixel/PixelMoon"
+import { PixelSky } from "./pixel/PixelSky"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
 
 export function Hero() {
-  const moonY = useParallax(0.15)
-
   return (
     <section
       id="hero"
       className="section-y relative overflow-hidden pt-16 md:pt-24"
     >
-      <div className="pointer-events-none absolute right-0 top-0 hidden select-none md:block">
-        <motion.div className="absolute right-6 top-0" style={{ y: moonY }}>
-          <PixelMoon />
-        </motion.div>
-        <div className="absolute right-16 top-16">
-          <PixelClouds />
-        </div>
-      </div>
+      <PixelSky />
 
       <SectionReveal className="relative max-w-[60ch]">
         <EyebrowLabel withDot>
