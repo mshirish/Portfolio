@@ -4,6 +4,7 @@ import { site } from "../data/site"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
+import { PixelLaunchPad } from "./pixel/PixelLaunchPad"
 
 const LINK_CLASS = "text-muted transition-colors hover:text-accent focus-visible:text-accent"
 
@@ -19,8 +20,9 @@ export function Footer() {
       className="relative overflow-hidden"
     >
       {/* Padding lives here so the container's bottom is the footer's bottom edge, where
-          the footer art stands. md:pb-28 (112px) keeps the © line clear of it. Below md the
-          art is hidden and section-y applies. */}
+          the launch pad stands. The scene (184px tall, 160px wide) sits right of every
+          footer line at md and up; md:pb-28 (112px) keeps the © line above the ground.
+          Below md the art is hidden and section-y applies. */}
       <div className="section-y relative mx-auto max-w-[1080px] px-6 md:pb-28">
         <SectionReveal>
           <EyebrowLabel withDot>
@@ -55,6 +57,10 @@ export function Footer() {
           </p>
         </SectionReveal>
 
+        <PixelLaunchPad
+          target={footerRef}
+          className="pointer-events-none absolute bottom-0 right-6 hidden select-none md:block"
+        />
       </div>
     </footer>
   )
