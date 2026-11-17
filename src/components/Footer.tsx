@@ -5,6 +5,7 @@ import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
 import { PixelLaunchPad, PixelLaunchPadInline } from "./pixel/PixelLaunchPad"
+import { ContactGhost } from "./pixel/GhostLayer"
 
 const LINK_CLASS = "text-muted transition-colors hover:text-accent focus-visible:text-accent"
 
@@ -25,6 +26,7 @@ export function Footer() {
           Below md the scene is in the flow under the © line instead, standing on the
           footer's bottom edge, so the bottom padding is 0 there. */}
       <div className="section-y relative mx-auto max-w-[1080px] px-6 pb-0 md:pb-28">
+        <ContactGhost />
         <SectionReveal>
           <EyebrowLabel withDot>
             {site.status} · {site.location}

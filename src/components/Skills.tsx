@@ -6,12 +6,14 @@ import { MarginSprite } from "./pixel/MarginSprite"
 import { PIECE_WIDTH, AstronautGap, AstronautPiece } from "./pixel/SpacePieces"
 import { GapSprite } from "./pixel/GapSprite"
 import { GAP_ROWS } from "./pixel/spaceSprites"
+import { SkillsGhost } from "./pixel/GhostLayer"
 
 export function Skills() {
   const groups = skillGroups.filter((group) => group.items.length > 0)
 
   return (
     <section id="skills" aria-labelledby="skills-heading" className="section-y relative">
+      <SkillsGhost />
       <MarginSprite side="right" top={24} width={PIECE_WIDTH} speed={0.1}>
         <AstronautPiece />
       </MarginSprite>

@@ -10,6 +10,7 @@ import { MarginSprite } from "./pixel/MarginSprite"
 import { PIECE_WIDTH, MiniRocketGap, MiniRocketPiece } from "./pixel/SpacePieces"
 import { GapSprite } from "./pixel/GapSprite"
 import { GAP_ROWS } from "./pixel/spaceSprites"
+import { ProjectsGhost } from "./pixel/GhostLayer"
 
 export function Projects() {
   const { slug, open, close } = useProjectRoute()
@@ -26,6 +27,7 @@ export function Projects() {
 
   return (
     <section id="projects" aria-labelledby="projects-heading" className="section-y relative">
+      <ProjectsGhost />
       <MarginSprite side="right" top={112} width={PIECE_WIDTH} speed={0.12}>
         <MiniRocketPiece />
       </MarginSprite>

@@ -2,13 +2,15 @@ import { site } from "../data/site"
 import { PixelSky, PixelSkyBand } from "./pixel/PixelSky"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
+import { HeroGhost } from "./pixel/GhostLayer"
 
 export function Hero() {
   return (
     <section
       id="hero"
-      className="section-y relative overflow-hidden pt-4 lg:pt-24"
+      className="section-y relative overflow-y-clip pt-4 lg:pt-24"
     >
+      <HeroGhost />
       <PixelSky />
       <PixelSkyBand className="mb-6 lg:hidden" />
 

@@ -6,6 +6,7 @@ import { MarginSprite } from "./pixel/MarginSprite"
 import { PIECE_WIDTH, AsteroidsGap, AsteroidsPiece } from "./pixel/SpacePieces"
 import { GapSprite } from "./pixel/GapSprite"
 import { GAP_ROWS } from "./pixel/spaceSprites"
+import { EducationGhost } from "./pixel/GhostLayer"
 
 export function Education() {
   return (
@@ -14,6 +15,7 @@ export function Education() {
       aria-labelledby="education-heading"
       className="section-y relative"
     >
+      <EducationGhost />
       <MarginSprite side="left" top={32} width={PIECE_WIDTH} speed={0.06}>
         <AsteroidsPiece />
       </MarginSprite>

@@ -55,9 +55,12 @@ function App() {
   }, [])
 
   return (
-    // isolate: the starfield's -z-10 stays inside this stacking context, above the
-    // body background and below every section.
-    <div className="relative isolate">
+    // isolate: the starfield (-z-10) and ghost art (z -5) stay inside this stacking
+    // context, above the body background and below every section's content.
+    // overflow-x: clip lets ghost art run off the screen edges without horizontal
+    // scroll; unlike hidden, it doesn't create a scroll container, so the sticky
+    // bar still works.
+    <div className="relative isolate overflow-x-clip">
       <Starfield />
 
       <SiteHeader links={MENU_LINKS} />

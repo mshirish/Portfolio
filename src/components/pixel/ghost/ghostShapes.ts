@@ -10,23 +10,29 @@ import { inDisc, rasterize, seeded, trimGrid } from "../pixelShapes"
 
 // --- Giant planet arc --------------------------------------------------------
 
-const ARC_COLS = 120
+const ARC_COLS = 160 // wide enough that the whole curve fits inside the grid
 const ARC_ROWS = 34
 const ARC_R = 96 // the planet's radius in cells; only its top shows
 
 /**
  * The top of a huge planet: a curved slice with latitude bands, darker toward
- * the right-hand limb in two curved steps, and a rim. Meant to rise from below, so most of
- * the planet is implied.
+ * the right-hand limb in two curved steps, and a rim. Meant to rise from below,
+ * so most of the planet is implied; the bottom rows step down to the darkest
+ * tones, so wherever the slice is cut off it fades into the sky instead of
+ * ending in a hard line.
  */
 export const giantPlanetArc: PixelGrid = rasterize(ARC_COLS, ARC_ROWS, (x, y) => {
-  const cx = ARC_COLS * 0.45
+  const cx = ARC_COLS / 2
   const cy = ARC_R // center far below the grid
   const dx = x + 0.5 - cx
   const dy = y + 0.5 - cy
   const d = Math.hypot(dx, dy)
   if (d > ARC_R) return null
   if (d > ARC_R - 1.5) return "ghost-2" // rim
+  // Fade out toward the bottom edge: two rows of each darker tone.
+  if (y >= ARC_ROWS - 2) return y % 2 === 0 && x % 2 === 0 ? "ghost-1" : null
+  if (y >= ARC_ROWS - 4) return "ghost-1"
+  if (y >= ARC_ROWS - 7) return "ghost-2"
   // Shaded side: two curved crescents toward the right-hand limb (the lit
   // part is the same planet shifted left, like the moon's shading).
   if (Math.hypot(dx + 22, dy) > ARC_R) return "ghost-1"
