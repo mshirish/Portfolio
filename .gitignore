@@ -28,3 +28,4 @@ media/node_modules
 media/.env.local
 media/captures
 media/out
+*.stackdump
