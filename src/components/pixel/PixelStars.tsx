@@ -32,6 +32,7 @@ export function StarCluster({
   seed = 0,
   pixelSize = 4,
   className,
+  style,
 }: {
   /** Size in cells. */
   width: number
@@ -40,6 +41,7 @@ export function StarCluster({
   seed?: number
   pixelSize?: number
   className?: string
+  style?: CSSProperties
 }) {
   const steady = starGrid(width, height, stars.filter((s) => !s.twinkle))
   const twinkling = stars.filter((s) => s.twinkle)
@@ -51,7 +53,7 @@ export function StarCluster({
       width={size.width}
       height={size.height}
       className={className}
-      style={{ shapeRendering: "crispEdges" }}
+      style={{ ...style, shapeRendering: "crispEdges" }}
       aria-hidden="true"
     >
       {renderPixelGrid(steady, pixelSize)}

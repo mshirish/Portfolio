@@ -105,8 +105,9 @@
   }
 }
 
-/* Shooting star: one crossing in 18 whole-pixel hops (12px left, 4px down
-   each) over 0.8s, then hidden. ShootingStar sets --px-shoot-x/-y. */
+/* Shooting star: one crossing in 18 whole-pixel hops (3 cells left, 1 down
+   each) over 0.8s, then hidden. ShootingStar sets --px-shoot-x/-y for its
+   pixel size. */
 @keyframes px-shoot {
   to {
     transform: translate(var(--px-shoot-x), var(--px-shoot-y));

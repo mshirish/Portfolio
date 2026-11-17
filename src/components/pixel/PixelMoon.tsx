@@ -33,6 +33,14 @@ function moonGrid(): PixelGrid {
 
 const grid = moonGrid()
 
-export function PixelMoon({ className, style }: { className?: string; style?: CSSProperties }) {
-  return <PixelSprite grid={grid} pixelSize={PIXEL_SIZE} className={className} style={style} />
+export function PixelMoon({
+  className,
+  style,
+  pixelSize = PIXEL_SIZE,
+}: {
+  className?: string
+  style?: CSSProperties
+  pixelSize?: number
+}) {
+  return <PixelSprite grid={grid} pixelSize={pixelSize} className={className} style={style} />
 }

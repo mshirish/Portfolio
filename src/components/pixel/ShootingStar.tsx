@@ -20,8 +20,8 @@ const streak: PixelGrid = [
   [H, H, n, n, n, n, n, n, n, n],
 ]
 
-/** Path in px: 18 hops of 12px left and 4px down, 0.8s in all (see .px-shoot). */
-const SHOOT_PATH = { dx: -216, dy: 72 }
+/** Path in cells: 18 hops of 3 cells left and 1 down, 0.8s in all (see .px-shoot). */
+const SHOOT_PATH = { dx: -54, dy: 18 }
 
 const MIN_WAIT = 20_000
 const MAX_WAIT = 30_000
@@ -31,7 +31,7 @@ const MAX_WAIT = 30_000
  * the tab is hidden and on unmount, and never starts under reduced motion.
  * Position it with `className` at the start of its path.
  */
-export function ShootingStar({ className }: { className?: string }) {
+export function ShootingStar({ className, pixelSize = 4 }: { className?: string; pixelSize?: number }) {
   const prefersReducedMotion = useReducedMotion()
   const [shot, setShot] = useState(0) // 0: none in flight
 
@@ -66,8 +66,14 @@ export function ShootingStar({ className }: { className?: string }) {
     <PixelSprite
       key={shot}
       grid={streak}
+      pixelSize={pixelSize}
       className={`px-shoot absolute ${className ?? ""}`}
-      style={{ "--px-shoot-x": `${SHOOT_PATH.dx}px`, "--px-shoot-y": `${SHOOT_PATH.dy}px` } as CSSProperties}
+      style={
+        {
+          "--px-shoot-x": `${SHOOT_PATH.dx * pixelSize}px`,
+          "--px-shoot-y": `${SHOOT_PATH.dy * pixelSize}px`,
+        } as CSSProperties
+      }
     />
   )
 }
