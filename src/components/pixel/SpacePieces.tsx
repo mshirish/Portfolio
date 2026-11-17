@@ -1,20 +1,35 @@
 import type { CSSProperties, ReactNode } from "react"
-import type { PixelGrid, PixelRole } from "./pixelGrid"
-import { inDisc, rasterize, rotatedShape, trimGrid } from "./pixelShapes"
-import { rocketShape, ROCKET_LENGTH } from "./PixelRocket"
+import type { PixelGrid } from "./pixelGrid"
+import {
+  GAP_ROWS,
+  asteroidLarge,
+  asteroidMedium,
+  asteroidSmall,
+  astronaut,
+  icePlanet,
+  miniRocket,
+  rustPlanet,
+  tinyMoon,
+} from "./spaceSprites"
 import { PixelSprite } from "./PixelSprite"
 import { StarCluster, type Star } from "./PixelStars"
 import { bobStyle } from "./motion"
+import type { GapScale } from "./GapSprite"
 
 /**
- * The space pieces that sit in the gutters beside sections (via MarginSprite).
- * Each piece is 16 cells (64px) wide at 4px per cell, with its own bob and a
- * few nearby stars inside the same box. PIECE_WIDTH is what MarginSprite
- * checks against the gutter.
+ * The space pieces beside sections, in two versions sharing the sprites in
+ * spaceSprites.ts:
+ * - margin pieces (MarginSprite, from 1280px): 16 cells (64px) wide at 4px per
+ *   cell, with a few stars in the same tall box. PIECE_WIDTH is what
+ *   MarginSprite checks against the gutter.
+ * - gap pieces (GapSprite, below 1280px): compact, at most 24 rows tall, drawn
+ *   at 2px or 3px per cell, with 1–2 stars beside the sprite.
  */
 
 const PX = 4
 export const PIECE_WIDTH = 16 * PX
+
+type Bob = [seconds: number, delay: number]
 
 /** A sprite at cell (x, y) inside a piece, bobbing on its own timing. */
 function Floating({
@@ -22,14 +37,16 @@ function Floating({
   x,
   y,
   bob,
+  px = PX,
 }: {
   grid: PixelGrid
   x: number
   y: number
-  bob: [seconds: number, delay: number]
+  bob: Bob
+  px?: number
 }) {
-  const style: CSSProperties = { left: x * PX, top: y * PX, ...bobStyle(...bob) }
-  return <PixelSprite grid={grid} className="px-bob absolute" style={style} />
+  const style: CSSProperties = { left: x * px, top: y * px, ...bobStyle(...bob) }
+  return <PixelSprite grid={grid} pixelSize={px} className="px-bob absolute" style={style} />
 }
 
 function Piece({
@@ -51,20 +68,7 @@ function Piece({
   )
 }
 
-/** A shaded disc: lit up-left, `shade` on the lower-right rim. */
-function planet(size: number, lit: PixelRole, shade: PixelRole, craters: [number, number, number][] = []) {
-  const c = size / 2
-  return rasterize(size, size, (x, y) => {
-    if (!inDisc(x, y, c, c, c)) return null
-    if (!inDisc(x, y, c - 1.5, c - 1.5, c - 0.5)) return shade
-    return craters.some(([cx, cy, r]) => inDisc(x, y, cx, cy, r)) ? shade : lit
-  })
-}
-
 // --- Projects: a mini rocket heading up and to the left -------------------
-
-const MINI = 0.7
-const miniRocket = rotatedShape((u, v) => rocketShape(u / MINI, v / MINI), ROCKET_LENGTH * MINI, -30)
 
 export function MiniRocketPiece() {
   return (
@@ -83,11 +87,6 @@ export function MiniRocketPiece() {
 }
 
 // --- Certifications: the small rust-red planet with two craters -----------
-
-const rustPlanet = planet(14, "planet-rust", "planet-rust-shade", [
-  [5, 5, 1.6],
-  [8.5, 9, 1.1],
-])
 
 export function RustPlanetPiece() {
   return (
@@ -108,39 +107,6 @@ export function RustPlanetPiece() {
 
 // --- Skills: a floating astronaut on a short tether -----------------------
 
-const ASTRONAUT_KEY: Record<string, PixelRole | null> = {
-  ".": null,
-  B: "rocket-body", // suit
-  S: "metal", // suit shade
-  V: "rocket-window", // visor
-  D: "metal-shade", // backpack, boots
-  T: "rocket-trim", // patch
-  L: "metal-shade", // tether
-}
-
-const astronaut: PixelGrid = [
-  ".....BBBB.......",
-  "....BBBBBB......",
-  "...BBVVVVBB.....",
-  "...BVVVVVVB.....",
-  "..DBVVVVVVB.....",
-  "..DBBVVVVBS.....",
-  "..DDBBBBBSS.....",
-  ".BDDBBTBBBSB....",
-  "BBDDBBBBBBSBB...",
-  "BSDDBBBBBBS.SB..",
-  "S.DDBBBBBSS..S..",
-  "..DDBBBBBSS.....",
-  ".L..BBSSBSS.....",
-  ".L..BB..BBS.....",
-  "L...BB..BBS.....",
-  "L...BS..BSS.....",
-  ".L.DDD..DDD.....",
-  ".L..............",
-  "..L.............",
-  "..L.............",
-].map((row) => [...row].map((ch) => ASTRONAUT_KEY[ch]))
-
 export function AstronautPiece() {
   return (
     <Piece
@@ -158,36 +124,6 @@ export function AstronautPiece() {
 }
 
 // --- Education: three asteroids of different sizes ------------------------
-
-/** A lumpy rock: radius wobbles with angle; lit rim up-left, shaded lower-right, a few pits. */
-function asteroid(size: number, wobble: number, phase: number, pits: [number, number][]) {
-  // Two spare cells so the wobbly outline never runs off the grid.
-  const grid = size + 2
-  const c = grid / 2
-  const r = size / 2 - 0.5
-  const inside = (x: number, y: number, cx: number, cy: number, rr: number) => {
-    const dx = x + 0.5 - cx
-    const dy = y + 0.5 - cy
-    const a = Math.atan2(dy, dx)
-    const edge = rr * (1 + wobble * Math.sin(3 * a + phase) + wobble * 0.6 * Math.cos(5 * a - phase))
-    return Math.hypot(dx, dy) <= edge
-  }
-  return trimGrid(rasterize(grid, grid, (x, y): PixelRole | null => {
-    if (!inside(x, y, c, c, r)) return null
-    if (pits.some(([px, py]) => px === x && py === y)) return "ground-shade"
-    if (!inside(x, y, c - 1, c - 1, r)) return "ground"
-    if (!inside(x - 1, y - 1, c, c, r) || !inside(x, y - 1, c, c, r)) return "metal"
-    return "metal-shade"
-  }))
-}
-
-const asteroidLarge = asteroid(12, 0.12, 0.4, [
-  [5, 6],
-  [7, 8],
-  [6, 4],
-])
-const asteroidMedium = asteroid(8, 0.14, 2.1, [[4, 4]])
-const asteroidSmall = asteroid(5, 0.1, 1, [])
 
 export function AsteroidsPiece() {
   return (
@@ -209,9 +145,6 @@ export function AsteroidsPiece() {
 
 // --- Experience: the ice-blue planet with a tiny moon ---------------------
 
-const icePlanet = planet(12, "planet-ice", "planet-ice-shade")
-const tinyMoon = planet(4, "moon", "moon-shade")
-
 export function IcePlanetPiece() {
   return (
     <Piece
@@ -229,3 +162,104 @@ export function IcePlanetPiece() {
     </Piece>
   )
 }
+
+// --- Gap versions (below 1280px) ----------------------------------------
+
+type Placed = { grid: PixelGrid; x: number; y: number; bob: Bob }
+
+/** A compact piece for the gap between sections: sprites plus 1–2 stars, `cols`×`rows` cells. */
+function GapPiece({
+  px,
+  cols,
+  rows,
+  sprites,
+  stars,
+  seed,
+}: {
+  px: GapScale
+  cols: number
+  rows: number
+  sprites: Placed[]
+  stars: Star[]
+  seed: number
+}) {
+  return (
+    <div className="relative" style={{ width: cols * px, height: rows * px }}>
+      <StarCluster width={cols} height={rows} stars={stars} seed={seed} pixelSize={px} className="absolute inset-0" />
+      {sprites.map((sprite, i) => (
+        <Floating key={i} px={px} {...sprite} />
+      ))}
+    </div>
+  )
+}
+
+export const MiniRocketGap = ({ px }: { px: GapScale }) => (
+  <GapPiece
+    px={px}
+    cols={20}
+    rows={GAP_ROWS.rocket}
+    seed={11}
+    sprites={[{ grid: miniRocket, x: 5, y: 0, bob: [3.6, 0.3] }]}
+    stars={[
+      { x: 1, y: 4, twinkle: true },
+      { x: 2, y: 16 },
+    ]}
+  />
+)
+
+export const RustPlanetGap = ({ px }: { px: GapScale }) => (
+  <GapPiece
+    px={px}
+    cols={20}
+    rows={GAP_ROWS.rust}
+    seed={12}
+    sprites={[{ grid: rustPlanet, x: 0, y: 1, bob: [4.4, 1.7] }]}
+    stars={[
+      { x: 17, y: 3, twinkle: true },
+      { x: 18, y: 12 },
+    ]}
+  />
+)
+
+export const AstronautGap = ({ px }: { px: GapScale }) => (
+  <GapPiece
+    px={px}
+    cols={20}
+    rows={GAP_ROWS.astronaut}
+    seed={13}
+    sprites={[{ grid: astronaut, x: 4, y: 0, bob: [3.9, 2.6] }]}
+    stars={[{ x: 1, y: 3, plus: true, twinkle: true }]}
+  />
+)
+
+export const AsteroidsGap = ({ px }: { px: GapScale }) => (
+  <GapPiece
+    px={px}
+    cols={28}
+    rows={GAP_ROWS.asteroids}
+    seed={14}
+    sprites={[
+      { grid: asteroidLarge, x: 0, y: 0, bob: [4.8, 0.5] },
+      { grid: asteroidMedium, x: 14, y: 2, bob: [3.3, 1.9] },
+      { grid: asteroidSmall, x: 23, y: 6, bob: [4.2, 3.1] },
+    ]}
+    stars={[{ x: 26, y: 1, twinkle: true }]}
+  />
+)
+
+export const IcePlanetGap = ({ px }: { px: GapScale }) => (
+  <GapPiece
+    px={px}
+    cols={20}
+    rows={GAP_ROWS.ice}
+    seed={15}
+    sprites={[
+      { grid: icePlanet, x: 4, y: 3, bob: [4.7, 1.2] },
+      { grid: tinyMoon, x: 16, y: 0, bob: [3.5, 0.8] },
+    ]}
+    stars={[
+      { x: 1, y: 6, twinkle: true },
+      { x: 18, y: 12 },
+    ]}
+  />
+)

@@ -7,7 +7,9 @@ import { ProjectCard } from "./ProjectCard"
 import { ProjectModal } from "./ProjectModal"
 import { SectionReveal } from "./SectionReveal"
 import { MarginSprite } from "./pixel/MarginSprite"
-import { PIECE_WIDTH, MiniRocketPiece } from "./pixel/SpacePieces"
+import { PIECE_WIDTH, MiniRocketGap, MiniRocketPiece } from "./pixel/SpacePieces"
+import { GapSprite } from "./pixel/GapSprite"
+import { GAP_ROWS } from "./pixel/spaceSprites"
 
 export function Projects() {
   const { slug, open, close } = useProjectRoute()
@@ -27,6 +29,9 @@ export function Projects() {
       <MarginSprite side="right" top={112} width={PIECE_WIDTH} speed={0.12}>
         <MiniRocketPiece />
       </MarginSprite>
+      <GapSprite side="right" rows={GAP_ROWS.rocket}>
+        {(px) => <MiniRocketGap px={px} />}
+      </GapSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="projects-heading">
           Projects

@@ -11,7 +11,9 @@ import { PixelSprite } from "./PixelSprite"
  * tower with service arms, and a parked rocket (no exhaust). Grounded, so
  * nothing bobs; the whole scene only rises with the footer.
  *
- * 40×46 cells at 4px = 160×184px.
+ * From md: one 40×46-cell grid at 4px (160×184px), absolutely positioned
+ * bottom-right. Below md: the same props in the normal flow under the © line at
+ * 2px (3px from sm), standing on a ground strip that spans the content width.
  */
 
 const COLS = 40
@@ -63,19 +65,29 @@ function flag(): PixelGrid {
   return grid
 }
 
-function sceneGrid(): PixelGrid {
-  const grid = emptyGrid(COLS, ROWS)
-
-  // Moon ground: a bumpy top row, shaded body, a few craters.
+/**
+ * Moon ground `cols` wide: a bumpy top row, then 4 rows of ground with a few
+ * craters. The pattern repeats every 40 cells, so a wide strip matches the
+ * md+ scene's own ground.
+ */
+function groundGrid(cols: number): PixelGrid {
+  const grid = emptyGrid(cols, 5)
   const bumps = new Set([3, 4, 12, 27, 28, 29, 36])
-  for (let x = 0; x < COLS; x++) {
-    if (bumps.has(x)) grid[GROUND_TOP - 1][x] = "ground"
-    for (let y = GROUND_TOP; y < ROWS; y++) grid[y][x] = y === GROUND_TOP ? "ground" : "ground-shade"
+  // Crater pixels as "column,row" within each 40-cell repeat (rows 2–4 of the strip).
+  const craters = new Set(["2,3", "3,3", "15,2", "22,4", "23,4", "33,2", "34,2", "38,4"])
+  for (let x = 0; x < cols; x++) {
+    const k = x % 40
+    if (bumps.has(k)) grid[0][x] = "ground"
+    for (let y = 1; y < 5; y++) {
+      grid[y][x] = craters.has(`${k},${y}`) ? "crater" : y === 1 ? "ground" : "ground-shade"
+    }
   }
-  const craters: [number, number][] = [
-    [2, 44], [3, 44], [15, 43], [22, 45], [23, 45], [33, 43], [34, 43], [38, 45],
-  ]
-  for (const [x, y] of craters) grid[y][x] = "crater"
+  return grid
+}
+
+/** Everything that stands on the ground: flag, pad, gantry, rocket. 40×42 cells. */
+function propsGrid(): PixelGrid {
+  const grid = emptyGrid(COLS, GROUND_TOP)
 
   // Pad: a flat slab, lit top, shaded edge.
   for (let x = 8; x < 38; x++) {
@@ -99,9 +111,22 @@ function sceneGrid(): PixelGrid {
   return grid
 }
 
+const props = propsGrid()
+
+/** The md+ scene: the props standing on their own 40-cell strip of ground. */
+function sceneGrid(): PixelGrid {
+  const grid = emptyGrid(COLS, ROWS)
+  stamp(grid, groundGrid(COLS), 0, GROUND_TOP - 1)
+  stamp(grid, props, 0, 0)
+  return grid
+}
+
 const scene = sceneGrid()
 
-/** Bottom-right of the footer; rises 48px (12 cells) as the footer enters the viewport. */
+/** Wide enough to span the content column at 2px or 3px below md (≤ 720px). */
+const strip = groundGrid(360)
+
+/** Bottom-right of the footer from md; rises 48px (12 cells) as the footer enters the viewport. */
 export function PixelLaunchPad({
   target,
   className,
@@ -117,3 +142,32 @@ export function PixelLaunchPad({
   )
 }
 
+/**
+ * Below md: the scene in the normal flow under the © line, the props aligned
+ * right, standing on a ground strip that spans the content width (clipped, and
+ * anchored right so its craters line up under the pad). Sits on the footer's
+ * bottom edge; rises 24px with the footer.
+ */
+export function PixelLaunchPadInline({
+  target,
+  className,
+}: {
+  target: RefObject<HTMLElement | null>
+  className?: string
+}) {
+  const y = useTargetParallax(target, 24)
+  return (
+    <motion.div className={`pointer-events-none select-none ${className ?? ""}`} style={{ y }} aria-hidden="true">
+      {([2, 3] as const).map((px) => (
+        <div key={px} className={px === 2 ? "sm:hidden" : "hidden sm:block"}>
+          <div className="flex justify-end">
+            <PixelSprite grid={props} pixelSize={px} className="block" />
+          </div>
+          <div className="flex justify-end overflow-hidden">
+            <PixelSprite grid={strip} pixelSize={px} className="block shrink-0" />
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  )
+}

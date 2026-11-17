@@ -3,7 +3,9 @@ import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
 import { MarginSprite } from "./pixel/MarginSprite"
-import { PIECE_WIDTH, AsteroidsPiece } from "./pixel/SpacePieces"
+import { PIECE_WIDTH, AsteroidsGap, AsteroidsPiece } from "./pixel/SpacePieces"
+import { GapSprite } from "./pixel/GapSprite"
+import { GAP_ROWS } from "./pixel/spaceSprites"
 
 export function Education() {
   return (
@@ -15,6 +17,9 @@ export function Education() {
       <MarginSprite side="left" top={32} width={PIECE_WIDTH} speed={0.06}>
         <AsteroidsPiece />
       </MarginSprite>
+      <GapSprite side="left" rows={GAP_ROWS.asteroids}>
+        {(px) => <AsteroidsGap px={px} />}
+      </GapSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="education-heading">
           Education

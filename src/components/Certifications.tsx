@@ -2,7 +2,9 @@ import { certifications } from "../data/certifications"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
 import { MarginSprite } from "./pixel/MarginSprite"
-import { PIECE_WIDTH, RustPlanetPiece } from "./pixel/SpacePieces"
+import { PIECE_WIDTH, RustPlanetGap, RustPlanetPiece } from "./pixel/SpacePieces"
+import { GapSprite } from "./pixel/GapSprite"
+import { GAP_ROWS } from "./pixel/spaceSprites"
 
 export function Certifications() {
   return (
@@ -14,6 +16,9 @@ export function Certifications() {
       <MarginSprite side="left" top={40} width={PIECE_WIDTH} speed={0.08}>
         <RustPlanetPiece />
       </MarginSprite>
+      <GapSprite side="left" rows={GAP_ROWS.rust}>
+        {(px) => <RustPlanetGap px={px} />}
+      </GapSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="certifications-heading">
           Certifications

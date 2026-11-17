@@ -26,6 +26,12 @@ const SECTIONS: { id: string; label: string; Component: ComponentType; items: re
 
 const visibleSections = SECTIONS.filter((section) => section.items.length > 0)
 
+// The burger menu's links, from the same list, plus the footer's contact.
+const MENU_LINKS = [
+  ...visibleSections.map(({ id, label }) => ({ label, href: `#${id}` })),
+  { label: "Contact", href: "#contact" },
+]
+
 
 function App() {
   // React renders after the browser's own fragment scroll, so a link like /#skills
@@ -54,7 +60,7 @@ function App() {
     <div className="relative isolate">
       <Starfield />
 
-      <SiteHeader />
+      <SiteHeader links={MENU_LINKS} />
 
       <main className="mx-auto max-w-[1080px] px-6">
         <Hero />

@@ -3,7 +3,9 @@ import { skillGroups } from "../data/skills"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
 import { MarginSprite } from "./pixel/MarginSprite"
-import { PIECE_WIDTH, AstronautPiece } from "./pixel/SpacePieces"
+import { PIECE_WIDTH, AstronautGap, AstronautPiece } from "./pixel/SpacePieces"
+import { GapSprite } from "./pixel/GapSprite"
+import { GAP_ROWS } from "./pixel/spaceSprites"
 
 export function Skills() {
   const groups = skillGroups.filter((group) => group.items.length > 0)
@@ -13,6 +15,9 @@ export function Skills() {
       <MarginSprite side="right" top={24} width={PIECE_WIDTH} speed={0.1}>
         <AstronautPiece />
       </MarginSprite>
+      <GapSprite side="right" rows={GAP_ROWS.astronaut}>
+        {(px) => <AstronautGap px={px} />}
+      </GapSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="skills-heading">
           Skills

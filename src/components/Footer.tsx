@@ -4,7 +4,7 @@ import { site } from "../data/site"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
-import { PixelLaunchPad } from "./pixel/PixelLaunchPad"
+import { PixelLaunchPad, PixelLaunchPadInline } from "./pixel/PixelLaunchPad"
 
 const LINK_CLASS = "text-muted transition-colors hover:text-accent focus-visible:text-accent"
 
@@ -22,8 +22,9 @@ export function Footer() {
       {/* Padding lives here so the container's bottom is the footer's bottom edge, where
           the launch pad stands. The scene (184px tall, 160px wide) sits right of every
           footer line at md and up; md:pb-28 (112px) keeps the © line above the ground.
-          Below md the art is hidden and section-y applies. */}
-      <div className="section-y relative mx-auto max-w-[1080px] px-6 md:pb-28">
+          Below md the scene is in the flow under the © line instead, standing on the
+          footer's bottom edge, so the bottom padding is 0 there. */}
+      <div className="section-y relative mx-auto max-w-[1080px] px-6 pb-0 md:pb-28">
         <SectionReveal>
           <EyebrowLabel withDot>
             {site.status} · {site.location}
@@ -56,6 +57,8 @@ export function Footer() {
             © {year} {site.name}
           </p>
         </SectionReveal>
+
+        <PixelLaunchPadInline target={footerRef} className="mt-10 md:hidden" />
 
         <PixelLaunchPad
           target={footerRef}
