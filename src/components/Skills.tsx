@@ -2,12 +2,17 @@ import type { CSSProperties } from "react"
 import { skillGroups } from "../data/skills"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
+import { MarginSprite } from "./pixel/MarginSprite"
+import { PIECE_WIDTH, AstronautPiece } from "./pixel/SpacePieces"
 
 export function Skills() {
   const groups = skillGroups.filter((group) => group.items.length > 0)
 
   return (
-    <section id="skills" aria-labelledby="skills-heading" className="section-y">
+    <section id="skills" aria-labelledby="skills-heading" className="section-y relative">
+      <MarginSprite side="right" top={24} width={PIECE_WIDTH} speed={0.1}>
+        <AstronautPiece />
+      </MarginSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="skills-heading">
           Skills

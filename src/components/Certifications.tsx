@@ -1,14 +1,19 @@
 import { certifications } from "../data/certifications"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { SectionReveal } from "./SectionReveal"
+import { MarginSprite } from "./pixel/MarginSprite"
+import { PIECE_WIDTH, RustPlanetPiece } from "./pixel/SpacePieces"
 
 export function Certifications() {
   return (
     <section
       id="certifications"
       aria-labelledby="certifications-heading"
-      className="section-y"
+      className="section-y relative"
     >
+      <MarginSprite side="left" top={40} width={PIECE_WIDTH} speed={0.08}>
+        <RustPlanetPiece />
+      </MarginSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="certifications-heading">
           Certifications

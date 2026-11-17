@@ -44,3 +44,26 @@ export function useTargetParallax(
     return Math.round((1 - clamped) * distance)
   })
 }
+
+/**
+ * Parallax relative to an element instead of the page: 0 when the element's
+ * center is at the viewport's center, growing by `speed` px per px scrolled
+ * away from that point. Bounded, so art far down a long page doesn't drift
+ * hundreds of pixels the way page-relative parallax would. Whole pixels only.
+ * Returns a static 0 MotionValue when the user prefers reduced motion.
+ */
+export function useElementParallax(
+  target: RefObject<HTMLElement | null>,
+  speed: number,
+): MotionValue<number> {
+  const prefersReducedMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target, offset: ["start end", "end start"] })
+
+  return useTransform(scrollYProgress, (progress) => {
+    const el = target.current
+    if (prefersReducedMotion || !el) return 0
+    // Progress 0 → 1 spans viewport height + element height of scrolling.
+    const span = window.innerHeight + el.offsetHeight
+    return Math.round((progress - 0.5) * span * speed)
+  })
+}

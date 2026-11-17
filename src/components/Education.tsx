@@ -2,14 +2,19 @@ import { education } from "../data/education"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
 import { SectionReveal } from "./SectionReveal"
+import { MarginSprite } from "./pixel/MarginSprite"
+import { PIECE_WIDTH, AsteroidsPiece } from "./pixel/SpacePieces"
 
 export function Education() {
   return (
     <section
       id="education"
       aria-labelledby="education-heading"
-      className="section-y"
+      className="section-y relative"
     >
+      <MarginSprite side="left" top={32} width={PIECE_WIDTH} speed={0.06}>
+        <AsteroidsPiece />
+      </MarginSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="education-heading">
           Education

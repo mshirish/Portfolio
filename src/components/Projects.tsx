@@ -6,6 +6,8 @@ import { EyebrowLabel } from "./EyebrowLabel"
 import { ProjectCard } from "./ProjectCard"
 import { ProjectModal } from "./ProjectModal"
 import { SectionReveal } from "./SectionReveal"
+import { MarginSprite } from "./pixel/MarginSprite"
+import { PIECE_WIDTH, MiniRocketPiece } from "./pixel/SpacePieces"
 
 export function Projects() {
   const { slug, open, close } = useProjectRoute()
@@ -21,7 +23,10 @@ export function Projects() {
   }, [openProject])
 
   return (
-    <section id="projects" aria-labelledby="projects-heading" className="section-y">
+    <section id="projects" aria-labelledby="projects-heading" className="section-y relative">
+      <MarginSprite side="right" top={112} width={PIECE_WIDTH} speed={0.12}>
+        <MiniRocketPiece />
+      </MarginSprite>
       <SectionReveal>
         <EyebrowLabel as="h2" id="projects-heading">
           Projects
