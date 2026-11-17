@@ -36,7 +36,11 @@ All copy lives in `src/data/*.ts`. Components never hardcode text.
 
 Images used by data files live in `src/assets/` and are imported, not put in `public/`.
 
-An empty array hides its section and its nav link, so a section can be switched off by emptying its data.
+An empty array hides its section, its menu link and its pixel piece, so a section can be switched off by emptying its data.
+
+### The menu
+
+Navigation is a burger button in the sticky top bar that opens a full-screen menu, on every screen size. The menu's section links aren't a separate list: `App.tsx` builds them from the same `SECTIONS` list that renders the page (label and `#id`), plus "Contact". To rename a link, change its `label` in `SECTIONS`; to add one, add the section there. The row of links under them (Email, GitHub, LinkedIn) comes from `links.ts`, like the footer's.
 
 To add a skill:
 
@@ -124,13 +128,13 @@ Credentials go in `media/.env.local` (gitignored):
 
 ## Pixel art
 
-The decorations are a small space scene drawn as inline SVG: a dim starfield behind the page, a moon, ringed planet, satellite and rocket in the hero, a piece in the side gutter beside each section, and a launch pad in the footer. The rules (colors, placement, motion) are in [CLAUDE.md](CLAUDE.md); this is the how-to.
+The decorations are a small space scene drawn as inline SVG: a dim starfield behind the page, a moon, ringed planet, satellite and rocket in the hero, a piece beside each section, and a launch pad in the footer. Each part has a placement per screen size: on phones and tablets the hero art sits in a band above the text, section pieces sit in the gaps between sections and the launch pad sits under the footer's last line. The rules (colors, placement, motion) are in [CLAUDE.md](CLAUDE.md); this is the how-to.
 
 Sprites are grids of **color roles**, not hex colors. Each cell is a role name such as `"rocket-body"` or `null` for transparent, and renders as `fill="var(--px-rocket-body)"`. The roles and their colors are in `src/index.css` (`--px-*`) and the list of names is `PIXEL_ROLES` in `src/components/pixel/pixelGrid.tsx`.
 
 To add a space sprite:
 
-1. Draw it as a grid at 4px per cell in `src/components/pixel/`. Small ones are easiest by hand, as rows of characters mapped to roles (see the astronaut in `SpacePieces.tsx`):
+1. Draw it as a grid in `src/components/pixel/` (sprites shared by several components go in `spaceSprites.ts`). Draw it for 4px per cell; smaller screens render the same grid at 2px or 3px. Small ones are easiest by hand, as rows of characters mapped to roles (see the astronaut in `spaceSprites.ts`):
    ```ts
    const KEY: Record<string, PixelRole | null> = { ".": null, B: "rocket-body", V: "rocket-window" }
    const helmet: PixelGrid = [".BB.", "BVVB", "BVVB", ".BB."].map((row) => [...row].map((ch) => KEY[ch]))
@@ -143,18 +147,25 @@ To add a space sprite:
    ```
    Grounded art doesn't bob.
 
-To place a piece beside a section:
+To place a piece beside a section, give it two versions that share the same sprite grids from `spaceSprites.ts`:
 
-1. Build the piece in `SpacePieces.tsx`: a 64px-wide box (`PIECE_WIDTH`) with the sprite and a few stars (`StarCluster`, mark about one in four `twinkle: true`).
-2. Make the section `relative` and put a `MarginSprite` first inside it:
+- a **margin piece** for 1280px and up, in the empty gutter beside the column (`MarginSprite`)
+- a **gap piece** for smaller screens, in the gap between this section and the one above it (`GapSprite`)
+
+1. In `SpacePieces.tsx`, build the margin piece: a 64px-wide box (`PIECE_WIDTH`) at 4px per cell with the sprite and a few stars (`StarCluster`; mark about one in four `twinkle: true`).
+2. Build the gap piece: the same sprite in a compact box with 1–2 stars beside it, rendered at the `px` it's given (2 or 3). It has to fit the gap: at most 24 rows tall (48px at 2px below `md`, 72px at 3px from `md`). Add its height in cells to `GAP_ROWS` in `spaceSprites.ts`.
+3. Make the section `relative` and put both first inside it:
    ```tsx
    <section id="talks" className="section-y relative">
      <MarginSprite side="left" top={40} width={PIECE_WIDTH} speed={0.1}>
        <HelmetPiece />
      </MarginSprite>
+     <GapSprite side="left" rows={GAP_ROWS.helmet}>
+       {(px) => <HelmetGap px={px} />}
+     </GapSprite>
    ```
-   `top` is px below the section's top; `speed` is the parallax, between 0.05 and 0.15. MarginSprite only renders from 1280px wide, and only when the gutter is at least the piece's width plus 24px, so it never reaches the content.
-3. Check it: at 1280, 1440 and 1920px, scroll through the page and make sure the piece's box never touches text, links or cards. Check that it sits still with reduced motion on.
+   Use the same `side` for both. For `MarginSprite`, `top` is px below the section's top and `speed` is the parallax (0.05–0.15); it only renders from 1280px, and only when the gutter is at least the piece's width plus 24px. `GapSprite` hides itself from 1280px, centers the piece in the gap above the section and aligns it to the column edge; it has no parallax.
+4. Check it: at 360, 390, 768, 1024, 1280, 1440 and 1920px, scroll through the page and make sure the piece's box never touches text, links or cards, and that section heights don't change. Check that it sits still with reduced motion on.
 
 ## Docker
 
@@ -185,7 +196,7 @@ docker run --rm -p 8080:8080 ghcr.io/mshirish/portfolio:latest
 src/
   assets/             images imported by data files (certification badges, project screenshots)
   components/         one file per page section
-    pixel/            pixel-art space scene: sprites, starfield, MarginSprite
+    pixel/            pixel-art space scene: sprites, starfield, MarginSprite, GapSprite
   data/               all site copy
   hooks/              useParallax (page, element and footer parallax), useProjectRoute, useWarmup
 media/                   local-only capture tooling (separate npm project)

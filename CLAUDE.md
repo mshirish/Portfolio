@@ -29,17 +29,28 @@ Pixel-art colors are **roles**, not hex values: see Pixel art below. Max ~8 role
 
 ### Spacing & layout
 - Single column, max-width `~1080px`.
-- **Section spacing lives in one place:** the `section-y` utility in `src/index.css` (`padding-block: 2rem`, `3rem` from `md`, plus `scroll-margin-top: 1.5rem`), giving 64px between sections on mobile and 96px on desktop. Every section uses it; to change the rhythm, edit that utility. No per-section `py-*` padding.
-  - Two exceptions override one side only. The Hero's top is `pt-16 md:pt-24`, for room under the nav. The Footer's bottom is `md:pb-28` (112px), which keeps the © line above the launch pad's ground; the scene (184px tall) sits right of every footer line.
+- **Section spacing lives in one place:** the `section-y` utility in `src/index.css` (`padding-block: 2rem`, `3rem` from `md`, plus `scroll-margin-top: calc(var(--bar-height) + 1.5rem)`), giving 64px between sections on mobile and 96px on desktop. Every section uses it; to change the rhythm, edit that utility. No per-section `py-*` padding.
+  - Two exceptions override one side only. The Hero's top is `pt-4 lg:pt-24`: below `lg` the sky band fills the space above the eyebrow, from `lg` the art sits in the right-hand column. The Footer's bottom is `pb-0 md:pb-28`: below `md` the launch pad stands in the flow on the footer's bottom edge; from `md` 112px keeps the © line above the absolutely placed scene's ground (184px tall, right of every footer line).
   - The gap from a section's h2 label to its content is always `mt-6 md:mt-8`.
   - In divided lists (Education, Experience), items use `first:pt-0 last:pb-0`, so the list's own padding never adds to section spacing.
 - **Content-sized sections:** no `min-height` or fixed height on any section or wrapper. Grids use auto rows, so a section grows only when its data does.
-- **Empty sections are hidden:** `App.tsx` builds both the page sections and the nav links from one list over the data arrays. A section whose array is empty renders neither the section nor its nav link. Never hardcode a separate nav list.
+- **Empty sections are hidden:** `App.tsx` builds both the page sections and the menu links (`MENU_LINKS`) from one list over the data arrays. A section whose array is empty renders neither the section nor its menu link (nor its pixel piece, which lives inside the section). Never hardcode a separate link list.
 - Left-aligned content. Pixel decorations anchored to right/corners so they never overlap text at any viewport.
 - Cards: `rounded-2xl`, `surface` bg, 1px `border`, no shadows except subtle on hover.
 
+## Top bar and menu
+- **Sticky bar** (`SiteHeader`): `position: sticky; top: 0`, full width, solid `bg` (no translucency, blur or glass), 56px (`--bar-height` in `index.css`). Content aligned with the 1080px column and `px-6`. Nothing on the left; the burger on the right. A 1px `border` bottom line appears only once the page has scrolled (an IntersectionObserver on a marker at the top of the page, no scroll handler).
+- **Burger** (`BurgerButton`): a 44×44px button with a 9×7-cell pixel icon at 2px in the `ui` role (`currentColor`): three bars, or a separate × grid while the menu is open (swapped, never rotated). `text` color, `accent` on hover and focus, global focus outline. `aria-label` "Open menu" / "Close menu", `aria-expanded`, `aria-controls="site-menu"`. It's the only navigation on every screen size; there's no inline nav.
+- **Menu** (`MenuOverlay`): a native `<dialog id="site-menu" aria-label="Site menu">` opened with `showModal()` (focus trap, Esc, inert page), sharing the project modal's scroll lock (`html:has(dialog[open])`, stable scrollbar gutter). Full viewport, solid `bg` with the dim starfield, the × in exactly the burger's spot. Then a `<nav aria-label="Sections">` list of `MENU_LINKS` in display type (`clamp(2rem, 7vw, 3.5rem)`, `text`, accent on hover/focus) with mono muted indexes ("01"…), and the mono external links from `links.ts` (GitHub and LinkedIn in a new tab with sr-only "(opens in a new tab)"). Every target is at least 44px.
+  - Opening focuses the first link and never touches the hash. Closing returns focus to the burger.
+  - Choosing a link: the menu closes first (exit animation, then `dialog.close()`, releasing the scroll lock), then the page scrolls to the section (smooth; instant under reduced motion), the hash is pushed, and focus moves to the section's heading (`aria-labelledby` target, `tabindex="-1"`).
+  - Fade + 12px slide over 200ms with Framer Motion; instant under reduced motion.
+  - Only one dialog at a time: a hash change or Back while the menu is open closes it, so it never sits over the project modal and doesn't interfere with `#project/…` routing.
+- **Layering:** starfield (`-z-10`) < sections < pixel art < sticky bar (`z-30`) < menu and project modal (both in the browser's top layer). Art scrolls under the bar.
+- **Anchors:** every section's `scroll-margin-top` (and the footer's, for `#contact`) is the bar height plus 1.5rem, so jumps and deep links (`/#skills`) land with the label just below the bar. On load, `App.tsx` scrolls to the hash once, and again when web fonts finish loading unless the visitor has scrolled. `/#project/<slug>` opens the project modal instead.
+
 ## Pixel art (important)
-The theme is **space**: a dim starfield behind the page, a night-sky scene in the hero, small space pieces in the side gutters and a launch pad in the footer. Pixel art is decoration, never behind or over text, with one exception: the dim starfield.
+The theme is **space**: a dim starfield behind the page, a night-sky scene in the hero, a small space piece beside each section and a launch pad in the footer. Every piece has a placement for each screen size (see Placement). Pixel art is decoration, never behind or over text, with one exception: the dim starfield.
 
 ### Building sprites
 - Pixel art is **inline SVG rect grids** with `shape-rendering: crispEdges`, rendered by `renderPixelGrid` (`src/components/pixel/pixelGrid.tsx`) or the `PixelSprite` wrapper. No external image assets, no `<image>`, no canvas, no blur, glow or gradients.
@@ -56,33 +67,45 @@ CSS custom properties `--px-<role>` in `src/index.css` under `:root` (dark value
 - Planets: `planet-sand`, `planet-sand-band`, `planet-sand-shade` (ringed), `planet-rust`, `planet-rust-shade`, `planet-ice` `#BFD9F2`, `planet-ice-shade` `#8FBCE6`, `ring`, `ring-shade`
 - Rockets: `rocket-body` `#EDF4FB`, `rocket-trim`, `rocket-window`, `flame-hot`, `flame`
 - Hardware and surfaces: `metal`, `metal-shade`, `ground`, `ground-shade`, `crater`
+- Interface: `ui` (`currentColor`), for the burger icon only
 
 ### The starfield (the only art behind text)
 `Starfield` fills the page-wide `relative isolate` wrapper in `App.tsx` at `-z-10`, `pointer-events: none`. One seeded-random 320×320px tile of 2px stars is a CSS mask over a layer filled with `var(--px-star-dim)`, repeated. No per-star nodes, no scroll handlers. `star-dim` must stay at **1.6:1 or less** against `bg` (it's 1.54:1), so it reads as texture. It doesn't twinkle.
 
 ### Placement
-- **Hero** (`PixelSky`): everything sits in a 344px column at the hero's right edge, right of the widest hero text, so vertical parallax can't carry it into text. From `md` only the moon shows; from `lg` the full scene: stars, moon, the ringed planet with its orbiting satellite, a rocket in flight (tilted 30°) and the shooting star. The shooting star is the only piece that leaves the column, through the band above the eyebrow.
-- **Margins** (`MarginSprite` + `SpacePieces.tsx`): one 64px piece in the gutter beside a section, centered in the gutter, `top` px below the section top. It renders only at **1280px and up**, and only when the gutter outside the 1080px column is at least the piece's width plus 24px; otherwise nothing. `aria-hidden`, `pointer-events: none`, never over section content. The section must be `relative`. Current layout: Projects right (mini rocket), Certifications left (rust planet), Skills right (astronaut), Education left (three asteroids), Experience right (ice planet with a tiny moon). Each piece carries 2–4 stars inside its own box.
-- **Footer** (`PixelLaunchPad`): bottom-right, standing on the footer's bottom edge: moon ground, a pad, a 10×40 lattice gantry, a parked rocket (no exhaust) and a pennant. 160×184px, hidden below `md`, never over the headline, links or © line.
+| Width | Hero | Beside sections | Footer |
+|---|---|---|---|
+| below `sm` (640) | sky band, 2px/cell | gap pieces, 2px/cell | launch pad in flow, 2px/cell |
+| `sm`–`md` | sky band, 3px/cell | gap pieces, 2px/cell | launch pad in flow, 3px/cell |
+| `md`–`lg` (768–1023) | sky band, 3px/cell | gap pieces, 3px/cell | absolute launch pad, 4px/cell |
+| `lg`–1279 | right-hand column, 4px/cell | gap pieces, 3px/cell | absolute launch pad, 4px/cell |
+| 1280 and up | right-hand column, 4px/cell | margin pieces, 4px/cell | absolute launch pad, 4px/cell |
+
+Only whole-number scales; a variant per scale is rendered and the others are hidden with CSS.
+- **Hero column** (`PixelSky`, from `lg`): everything sits in a 344px column at the hero's right edge, right of the widest hero text, so vertical parallax can't carry it into text: stars, moon, the ringed planet with its orbiting satellite, a rocket in flight (tilted 30°) and the shooting star. The shooting star is the only piece that leaves the column, through the band above the eyebrow.
+- **Sky band** (`PixelSkyBand`, below `lg`): a block in the normal flow between the top bar and the eyebrow (112px tall below `sm`, 140px from `sm`), so it takes up space and can't overlap text. The ringed planet with its orbiting satellite on the left, the rocket after it, the moon on the right, seven stars across the width; the shooting star crosses the band only. It clips its contents (`overflow: hidden`), so bob and parallax never leave it.
+- **Margin pieces** (`MarginSprite`, from 1280px): one 64px piece in the gutter beside a section, centered in the gutter, `top` px below the section top. It renders only at **1280px and up**, and only when the gutter outside the 1080px column is at least the piece's width plus 24px; otherwise nothing. Each carries 2–4 stars in its own box.
+- **Gap pieces** (`GapSprite`, below 1280px, `xl:hidden`): a compact version of the same piece, centered on the section's top edge, which is the middle of the gap between sections, and aligned to the column's left or right edge (same side as the margin piece). Absolutely positioned, so it never changes spacing or height. It must fit the gap with room for the bob: at most 48px tall below `md` (64px gap) and 80px from `md` (96px gap). 1–2 stars beside each, one twinkling.
+- **Section mapping** (both versions; sprites shared in `spaceSprites.ts`): Projects right (mini rocket), Certifications left (rust planet), Skills right (astronaut), Education left (three asteroids), Experience right (ice planet with a tiny moon). Margin and gap pieces are `aria-hidden`, `pointer-events: none`, and live inside their section (which must be `relative`), so a hidden section hides its piece.
+- **Footer** (`PixelLaunchPad`): moon ground, a pad, a 10×40 lattice gantry, a parked rocket (no exhaust) and a pennant. From `md`: one 160×184px scene absolutely placed bottom-right on the footer's bottom edge. Below `md` (`PixelLaunchPadInline`): the same props in the flow under the © line, aligned right, on a ground strip that spans the content width, sitting on the footer's bottom edge. Never over the headline, links or © line.
 - `PixelSun` exists for the future light mode and isn't rendered anywhere.
-- Below `md` the only art is the starfield.
 
 ### Checking a change
-Measure, don't guess: after moving or adding art, check bounding boxes against text and interactive elements at 768, 1024, 1280, 1440 and 1920px and several scroll positions (include the satellite's whole orbit and the shooting-star path in the hero).
+Measure, don't guess: after moving or adding art, check bounding boxes against text and interactive elements (the burger included) at 360, 390, 440, 768, 1024, 1280, 1440 and 1920px, scrolling the whole page (include the satellite's whole orbit and the shooting-star path). Art passing under the opaque sticky bar is fine; count only what's visible below it.
 
 ## Motion rules
 - **Floating** art (moon, planets, rockets in flight, the satellite, the astronaut, asteroids) bobs: the `.px-bob` keyframes, 0 to −3px and back, alternating, in whole-pixel steps (uneven keyframe spacing approximates ease-in-out). Each sprite sets its own `--px-bob-duration` (3–5s) and `--px-bob-delay` via `bobStyle()`, so nothing moves in sync.
 - **Grounded** art (the footer launch pad) never bobs.
-- **Parallax** (Framer Motion, whole pixels): hero layers are page-relative via `useParallax(speed)`: stars and moon 0.1×, ringed planet and satellite 0.15×, rocket 0.25×. Margin pieces use `useElementParallax(ref, speed)` (0.05–0.15), relative to their section, so they stay bounded. The footer scene rises a bounded 48px as the footer enters the viewport and is at rest at the bottom of the page (`useTargetParallax(footerRef, 48)`, never page-relative).
-- **Twinkle:** about a quarter of the foreground stars (hero and margins) blink with stepped opacity, 1 → 0.45 → 1, each on its own 2–6s cycle (`.px-twinkle`). The background tile doesn't.
-- **Orbit:** the satellite circles the ringed planet every 40s on 120 precomputed whole-pixel CSS keyframes, with z-index 1 (behind the planet) on the far half and 3 (in front) on the near half. No JS animation loop.
+- **Parallax** (Framer Motion, whole pixels): hero layers are page-relative via `useParallax(speed)`: in the column, stars and moon 0.1×, ringed planet and satellite 0.15×, rocket 0.25×; in the sky band, smaller (0.04×, 0.06×, 0.1×). Margin pieces use `useElementParallax(ref, speed)` (0.05–0.15), relative to their section, so they stay bounded. Gap pieces have no parallax (it could carry them out of the gap into content). The footer scene rises a bounded distance as the footer enters the viewport and is at rest at the bottom of the page (`useTargetParallax(footerRef, …)`, never page-relative): 48px from `md`, 24px below.
+- **Twinkle:** about a quarter of the foreground stars (hero, band and pieces) blink with stepped opacity, 1 → 0.45 → 1, each on its own 2–6s cycle (`.px-twinkle`). The background tile doesn't.
+- **Orbit:** the satellite circles the ringed planet every 40s on 120 precomputed whole-pixel CSS keyframes (one set per scale: `px-orbit-2/3/4`), with z-index 1 (behind the planet) on the far half and 3 (in front) on the near half. No JS animation loop.
 - **Shooting star:** every 20–30s (random each time), one streak crosses in 18 whole-pixel hops over 0.8s. The timer stops while the tab is hidden and on unmount.
 - All movement uses whole-pixel steps (`steps()`), so pixels stay crisp.
 - **Reduced motion:** under `prefers-reduced-motion: reduce`, every CSS animation is off (each rule sits inside `prefers-reduced-motion: no-preference`), parallax hooks return 0 and the shooting-star timer never starts. Everything sits still.
 - Content: single gentle fade + 12px slide-up reveal per section, once, `viewport={{ once: true }}`. No staggered letter animations, no scroll-jacking.
 
 ## Sections (in order)
-1. **Intro/Hero** — mono eyebrow (`SOFTWARE DEVELOPER · OPEN TO WORK` with green dot), huge display name in `accent`, one bold tagline sentence in `text`, 2–3 line bio in `muted`. Pixel space scene top-right (see Pixel art).
+1. **Intro/Hero** — mono eyebrow (`SOFTWARE DEVELOPER · OPEN TO WORK` with green dot), huge display name in `accent`, one bold tagline sentence in `text`, 2–3 line bio in `muted`. Pixel space scene: the sky band above the eyebrow below `lg`, the right-hand column from `lg` (see Pixel art).
 2. **Projects** — mono `PROJECTS` h2 label, `<ul>` grid (1 col → `md:2` → `lg:3`, gap-6). Each card is an `<article>`, not one big button, because it holds real links: a solid-color folder preview (backdrop back panel with a black/15 overlay and a top-left tab; up to 3 white screenshot sheets at −3°, +2°, 0°, front one showing `images[0]`; a backdrop "pocket" over the lower ~45% with a 1px white/20 top line), then the name as display h3, summary, mono tech line, a mono "With {credits.name}" line when `credits` is set, and the "View case study →" `<button aria-haspopup="dialog">`. That button's `::after` stretches over the whole card, so a click anywhere opens the modal. Below it, a mono links row ("Live demo ↗" when `demoUrl` is set, "Code ↗") sits above the stretched layer (`relative z-10`) and opens new tabs; then the mono `wakeNote` when set. Hover, or keyboard focus on the case-study button: sheets slide up 8px and fan 2° more (`motion-safe:` only). A mono DRAFT tag shows while `draft: true`.
    - **Backend warm-up:** a project with `warmupUrl` gets `fetch(warmupUrl, { mode: "no-cors", cache: "no-store" }).catch(() => {})` the first time its card scrolls into view (IntersectionObserver) or its modal opens, deep links included (`warmUp` / `useWarmupOnView` in `src/hooks/useWarmup.ts`). At most once per URL per page view (a module-level Set): no retries, no polling. Skipped when `navigator.connection?.saveData` is true.
    - **Never iframe a live demo.** Demos are only ever linked to, in a new tab.
@@ -110,7 +133,7 @@ Measure, don't guess: after moving or adding art, check bounding boxes against t
    - **Icon sources:** icons come from react-icons, Simple Icons (`Si*`) by default. Simple Icons removed the AWS and C# logos at the trademark owners' request, so AWS uses Font Awesome's `FaAws` and C# uses Tabler's `TbBrandCSharp`. Import only icons that are used, so unused ones never reach the bundle.
 5. **Education** — mono `EDUCATION` h2 label, same divided-list pattern as Experience: degree as display h3, school as an accent link (new tab, ↗), mono location, mono date right-aligned from `md`.
 6. **Experience** — mono `EXPERIENCE` h2 label, `<ul>` of companies with hairline `divide-y` dividers. Each company: name as display h3 (plain text, or an accent link opening in a new tab when `companyHref` is set) and a mono uppercase location; roles nested under it, so a promotion stays under one employer. Each role: title (Inter, medium, `text`), mono date range ("APR 2024 — DEC 2024", right-aligned on the title row from `md`, stacked below `md`), and a `muted` summary at max 60ch. No timeline graphics, connecting lines or cards.
-7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. The pixel launch pad bottom-right, rising on scroll; hidden below `md`.
+7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. The pixel launch pad bottom-right, rising on scroll: absolutely placed from `md`, in the flow under the © line below `md`.
 
 ## Content
 - Real content lives in `src/data/*.ts` (site, skills, certifications, projects, experience, education, links) — components never hardcode copy.
@@ -123,7 +146,7 @@ Measure, don't guess: after moving or adding art, check bounding boxes against t
 - Copy register: plain, specific, first person, no buzzwords. Links say where they go ("View project", "GitHub").
 
 ## Quality floor
-- Responsive to 360px; hero name uses clamp; pixel decorations hide or shrink below `md` if they'd crowd content.
+- Responsive to 360px; hero name uses clamp; pixel art moves to in-flow or gap placements at smaller sizes (see Placement) so it never crowds content.
 - Visible keyboard focus states (accent outline), semantic landmarks (`header/main/section/footer`), alt text or `aria-hidden` on decorative SVGs.
 - Heading outline: the hero name is the only h1; section labels are h2 via `<EyebrowLabel as="h2">`; item titles inside sections are h3. The hero eyebrow stays a `p`. Contact is the exception: its h2 is the headline (`site.contactHeadline`), not a "Contact" label, and its status eyebrow is a `p`.
 - Lighthouse-friendly: fonts via `<link>` with `display=swap`, lazy-load project screenshots.
