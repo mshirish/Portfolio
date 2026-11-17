@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/mshirish/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/mshirish/Portfolio/actions/workflows/ci.yml)
 
-My personal portfolio: a single-page site with a dark, minimal layout and small pixel-art decorations that move with scroll.
+My personal portfolio: a single-page site with a dark, minimal layout and small pixel-art space decorations that move with scroll.
 
 **Stack:** Vite, React, TypeScript, Tailwind CSS v4, Framer Motion, react-icons. Served as static files by nginx in a container.
 
@@ -122,6 +122,40 @@ Credentials go in `media/.env.local` (gitignored):
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Optional: the admin order list (step 08) |
 | `LEVANT_URL` | Optional: override the demo URL |
 
+## Pixel art
+
+The decorations are a small space scene drawn as inline SVG: a dim starfield behind the page, a moon, ringed planet, satellite and rocket in the hero, a piece in the side gutter beside each section, and a launch pad in the footer. The rules (colors, placement, motion) are in [CLAUDE.md](CLAUDE.md); this is the how-to.
+
+Sprites are grids of **color roles**, not hex colors. Each cell is a role name such as `"rocket-body"` or `null` for transparent, and renders as `fill="var(--px-rocket-body)"`. The roles and their colors are in `src/index.css` (`--px-*`) and the list of names is `PIXEL_ROLES` in `src/components/pixel/pixelGrid.tsx`.
+
+To add a space sprite:
+
+1. Draw it as a grid at 4px per cell in `src/components/pixel/`. Small ones are easiest by hand, as rows of characters mapped to roles (see the astronaut in `SpacePieces.tsx`):
+   ```ts
+   const KEY: Record<string, PixelRole | null> = { ".": null, B: "rocket-body", V: "rocket-window" }
+   const helmet: PixelGrid = [".BB.", "BVVB", "BVVB", ".BB."].map((row) => [...row].map((ch) => KEY[ch]))
+   ```
+   Round or tilted shapes are easier from math: `rasterize`, `inDisc`, `trimGrid` and `rotatedShape` in `pixelShapes.ts`. Never rotate pixel art with CSS; draw it already rotated.
+2. Need a new color? Add a role to `PIXEL_ROLES` and a `--px-<role>` value in `index.css`. Use one solid color, and keep the total around two dozen.
+3. Render it with `<PixelSprite grid={helmet} />`. For a floating object, add the bob with its own timing so it doesn't move in step with the others:
+   ```tsx
+   <PixelSprite grid={helmet} className="px-bob" style={bobStyle(4.2, 1.3)} />
+   ```
+   Grounded art doesn't bob.
+
+To place a piece beside a section:
+
+1. Build the piece in `SpacePieces.tsx`: a 64px-wide box (`PIECE_WIDTH`) with the sprite and a few stars (`StarCluster`, mark about one in four `twinkle: true`).
+2. Make the section `relative` and put a `MarginSprite` first inside it:
+   ```tsx
+   <section id="talks" className="section-y relative">
+     <MarginSprite side="left" top={40} width={PIECE_WIDTH} speed={0.1}>
+       <HelmetPiece />
+     </MarginSprite>
+   ```
+   `top` is px below the section's top; `speed` is the parallax, between 0.05 and 0.15. MarginSprite only renders from 1280px wide, and only when the gutter is at least the piece's width plus 24px, so it never reaches the content.
+3. Check it: at 1280, 1440 and 1920px, scroll through the page and make sure the piece's box never touches text, links or cards. Check that it sits still with reduced motion on.
+
 ## Docker
 
 The image serves the built site with unprivileged nginx on port 8080.
@@ -151,12 +185,12 @@ docker run --rm -p 8080:8080 ghcr.io/mshirish/portfolio:latest
 src/
   assets/             images imported by data files (certification badges, project screenshots)
   components/         one file per page section
-    pixel/            pixel-art SVG decorations
+    pixel/            pixel-art space scene: sprites, starfield, MarginSprite
   data/               all site copy
-  hooks/              useParallax, useTargetParallax, useProjectRoute, useWarmup
+  hooks/              useParallax (page, element and footer parallax), useProjectRoute, useWarmup
 media/                   local-only capture tooling (separate npm project)
 Dockerfile, nginx.conf   container image
 .github/workflows/       CI
 ```
 
-Design rules (colors, type, motion, pixel-art placement) are in [CLAUDE.md](CLAUDE.md).
+Design rules (colors, type, motion, pixel-art roles and placement) are in [CLAUDE.md](CLAUDE.md).

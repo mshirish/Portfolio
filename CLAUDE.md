@@ -20,7 +20,7 @@ Single-page portfolio for a software developer. Aesthetic: **modern minimal dark
 | `accent` | `#7C8CF8` | Name, links, hover states (periwinkle) |
 | `status` | `#34D399` | "Open to work" dot only |
 
-Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud white `#EDF4FB`, foliage greens `#4E9A51 #2F6B39`, trunk brown `#8A5A32`, moon grey `#D9D9E3`. Max ~8 colors per pixel element. The moon's body is cloud white `#EDF4FB` with moon grey `#D9D9E3` craters.
+Pixel-art colors are **roles**, not hex values: see Pixel art below. Max ~8 roles per pixel element.
 
 ### Typography
 - **Display:** "Clash Display" (Fontshare) or "Space Grotesk" (Google Fonts), weight 600–700, tracking `-0.03em`, for hero name and section headlines. Hero name sized ~`clamp(3rem, 9vw, 6.5rem)`.
@@ -30,7 +30,7 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 ### Spacing & layout
 - Single column, max-width `~1080px`.
 - **Section spacing lives in one place:** the `section-y` utility in `src/index.css` (`padding-block: 2rem`, `3rem` from `md`, plus `scroll-margin-top: 1.5rem`), giving 64px between sections on mobile and 96px on desktop. Every section uses it; to change the rhythm, edit that utility. No per-section `py-*` padding.
-  - Two exceptions override one side only. The Hero's top is `pt-16 md:pt-24`, for room under the nav. The Footer's bottom is `md:pb-28` (112px), which clears the 2× trees and bird (104px, plus a 3px bob) so they never reach the © line.
+  - Two exceptions override one side only. The Hero's top is `pt-16 md:pt-24`, for room under the nav. The Footer's bottom is `md:pb-28` (112px), which keeps the © line above the launch pad's ground; the scene (184px tall) sits right of every footer line.
   - The gap from a section's h2 label to its content is always `mt-6 md:mt-8`.
   - In divided lists (Education, Experience), items use `first:pt-0 last:pb-0`, so the list's own padding never adds to section spacing.
 - **Content-sized sections:** no `min-height` or fixed height on any section or wrapper. Grids use auto rows, so a section grows only when its data does.
@@ -38,20 +38,51 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 - Left-aligned content. Pixel decorations anchored to right/corners so they never overlap text at any viewport.
 - Cards: `rounded-2xl`, `surface` bg, 1px `border`, no shadows except subtle on hover.
 
-## Pixel-art rules (important)
-- Build pixel elements as **inline SVG rect grids** (each "pixel" = one `<rect>` on an integer grid), with `shape-rendering: crispEdges`. No external image assets, no blur, no gradients inside pixel art.
+## Pixel art (important)
+The theme is **space**: a dim starfield behind the page, a night-sky scene in the hero, small space pieces in the side gutters and a launch pad in the footer. Pixel art is decoration, never behind or over text, with one exception: the dim starfield.
+
+### Building sprites
+- Pixel art is **inline SVG rect grids** with `shape-rendering: crispEdges`, rendered by `renderPixelGrid` (`src/components/pixel/pixelGrid.tsx`) or the `PixelSprite` wrapper. No external image assets, no `<image>`, no canvas, no blur, glow or gradients.
+- `renderPixelGrid` **merges horizontal runs** of the same role in a row into one `<rect>`, so a sprite costs a rect per run, not per pixel.
+- Grids hold **color roles** (`PixelRole`), never hex: each cell is a role name or `null`, rendered as `fill="var(--px-<role>)"`. A grep for hex colors in `src/components/pixel/` must find none outside comments.
+- Draw at 4px per cell. Scale only in whole multiples so pixels stay square. Hand-draw small sprites as grids (the astronaut, the satellite); build larger ones from shape math in `pixelShapes.ts` (`rasterize`, `inDisc`, `trimGrid`). Tilted art is rasterized already rotated with `rotatedShape`, never rotated with CSS, which would blur it.
 - If a raster sprite is ever used: `image-rendering: pixelated`.
 - These rules are for our own SVG art only. Third-party badges (e.g. certification badges) are shown exactly as issued — never pixelated, filtered, recolored, cropped or rounded.
-- Placement: clouds + moon top-right of hero; small nest/plant near the SKILLS label; two trees bottom-right of footer, drawn at 2× (`pixelSize` 8), with the bird perched on the larger tree's crown. Corners and margins only.
-- Scale pixel art in whole multiples so pixels stay square.
+
+### Color roles
+CSS custom properties `--px-<role>` in `src/index.css` under `:root` (dark values), listed in `PIXEL_ROLES` in `pixelGrid.tsx`. Each is one solid color. A future light mode only adds `:root[data-theme="light"]` with the same names (reserved by a comment in `index.css`, not defined yet).
+- Moon and stars: `moon`, `moon-shade`, `moon-crater`, `star`, `star-dim`
+- Sun (light mode only): `sun`, `sun-shade`
+- Planets: `planet-sand`, `planet-sand-band`, `planet-sand-shade` (ringed), `planet-rust`, `planet-rust-shade`, `planet-ice` `#BFD9F2`, `planet-ice-shade` `#8FBCE6`, `ring`, `ring-shade`
+- Rockets: `rocket-body` `#EDF4FB`, `rocket-trim`, `rocket-window`, `flame-hot`, `flame`
+- Hardware and surfaces: `metal`, `metal-shade`, `ground`, `ground-shade`, `crater`
+
+### The starfield (the only art behind text)
+`Starfield` fills the page-wide `relative isolate` wrapper in `App.tsx` at `-z-10`, `pointer-events: none`. One seeded-random 320×320px tile of 2px stars is a CSS mask over a layer filled with `var(--px-star-dim)`, repeated. No per-star nodes, no scroll handlers. `star-dim` must stay at **1.6:1 or less** against `bg` (it's 1.54:1), so it reads as texture. It doesn't twinkle.
+
+### Placement
+- **Hero** (`PixelSky`): everything sits in a 344px column at the hero's right edge, right of the widest hero text, so vertical parallax can't carry it into text. From `md` only the moon shows; from `lg` the full scene: stars, moon, the ringed planet with its orbiting satellite, a rocket in flight (tilted 30°) and the shooting star. The shooting star is the only piece that leaves the column, through the band above the eyebrow.
+- **Margins** (`MarginSprite` + `SpacePieces.tsx`): one 64px piece in the gutter beside a section, centered in the gutter, `top` px below the section top. It renders only at **1280px and up**, and only when the gutter outside the 1080px column is at least the piece's width plus 24px; otherwise nothing. `aria-hidden`, `pointer-events: none`, never over section content. The section must be `relative`. Current layout: Projects right (mini rocket), Certifications left (rust planet), Skills right (astronaut), Education left (three asteroids), Experience right (ice planet with a tiny moon). Each piece carries 2–4 stars inside its own box.
+- **Footer** (`PixelLaunchPad`): bottom-right, standing on the footer's bottom edge: moon ground, a pad, a 10×40 lattice gantry, a parked rocket (no exhaust) and a pennant. 160×184px, hidden below `md`, never over the headline, links or © line.
+- `PixelSun` exists for the future light mode and isn't rendered anywhere.
+- Below `md` the only art is the starfield.
+
+### Checking a change
+Measure, don't guess: after moving or adding art, check bounding boxes against text and interactive elements at 768, 1024, 1280, 1440 and 1920px and several scroll positions (include the satellite's whole orbit and the shooting-star path in the hero).
 
 ## Motion rules
-- Parallax via Framer Motion scroll progress: clouds drift slowly horizontally and translate at ~0.3× scroll speed; moon at ~0.15× (page-relative, via `useParallax(speed)`); footer trees rise a bounded 48px as the footer enters the viewport and are at rest when the page is scrolled to the bottom (via `useTargetParallax(footerRef, 48)`, never page-relative); the perched bird rises with the trees (same parallax wrapper) and gently bobs on its own (2–3px, 3s ease-in-out loop).
+- **Floating** art (moon, planets, rockets in flight, the satellite, the astronaut, asteroids) bobs: the `.px-bob` keyframes, 0 to −3px and back, alternating, in whole-pixel steps (uneven keyframe spacing approximates ease-in-out). Each sprite sets its own `--px-bob-duration` (3–5s) and `--px-bob-delay` via `bobStyle()`, so nothing moves in sync.
+- **Grounded** art (the footer launch pad) never bobs.
+- **Parallax** (Framer Motion, whole pixels): hero layers are page-relative via `useParallax(speed)`: stars and moon 0.1×, ringed planet and satellite 0.15×, rocket 0.25×. Margin pieces use `useElementParallax(ref, speed)` (0.05–0.15), relative to their section, so they stay bounded. The footer scene rises a bounded 48px as the footer enters the viewport and is at rest at the bottom of the page (`useTargetParallax(footerRef, 48)`, never page-relative).
+- **Twinkle:** about a quarter of the foreground stars (hero and margins) blink with stepped opacity, 1 → 0.45 → 1, each on its own 2–6s cycle (`.px-twinkle`). The background tile doesn't.
+- **Orbit:** the satellite circles the ringed planet every 40s on 120 precomputed whole-pixel CSS keyframes, with z-index 1 (behind the planet) on the far half and 3 (in front) on the near half. No JS animation loop.
+- **Shooting star:** every 20–30s (random each time), one streak crosses in 18 whole-pixel hops over 0.8s. The timer stops while the tab is hidden and on unmount.
+- All movement uses whole-pixel steps (`steps()`), so pixels stay crisp.
+- **Reduced motion:** under `prefers-reduced-motion: reduce`, every CSS animation is off (each rule sits inside `prefers-reduced-motion: no-preference`), parallax hooks return 0 and the shooting-star timer never starts. Everything sits still.
 - Content: single gentle fade + 12px slide-up reveal per section, once, `viewport={{ once: true }}`. No staggered letter animations, no scroll-jacking.
-- Wrap all motion in `useReducedMotion()` — render static when reduced motion is preferred.
 
 ## Sections (in order)
-1. **Intro/Hero** — mono eyebrow (`SOFTWARE DEVELOPER · OPEN TO WORK` with green dot), huge display name in `accent`, one bold tagline sentence in `text`, 2–3 line bio in `muted`. Pixel clouds + moon top-right.
+1. **Intro/Hero** — mono eyebrow (`SOFTWARE DEVELOPER · OPEN TO WORK` with green dot), huge display name in `accent`, one bold tagline sentence in `text`, 2–3 line bio in `muted`. Pixel space scene top-right (see Pixel art).
 2. **Projects** — mono `PROJECTS` h2 label, `<ul>` grid (1 col → `md:2` → `lg:3`, gap-6). Each card is an `<article>`, not one big button, because it holds real links: a solid-color folder preview (backdrop back panel with a black/15 overlay and a top-left tab; up to 3 white screenshot sheets at −3°, +2°, 0°, front one showing `images[0]`; a backdrop "pocket" over the lower ~45% with a 1px white/20 top line), then the name as display h3, summary, mono tech line, a mono "With {credits.name}" line when `credits` is set, and the "View case study →" `<button aria-haspopup="dialog">`. That button's `::after` stretches over the whole card, so a click anywhere opens the modal. Below it, a mono links row ("Live demo ↗" when `demoUrl` is set, "Code ↗") sits above the stretched layer (`relative z-10`) and opens new tabs; then the mono `wakeNote` when set. Hover, or keyboard focus on the case-study button: sheets slide up 8px and fan 2° more (`motion-safe:` only). A mono DRAFT tag shows while `draft: true`.
    - **Backend warm-up:** a project with `warmupUrl` gets `fetch(warmupUrl, { mode: "no-cors", cache: "no-store" }).catch(() => {})` the first time its card scrolls into view (IntersectionObserver) or its modal opens, deep links included (`warmUp` / `useWarmupOnView` in `src/hooks/useWarmup.ts`). At most once per URL per page view (a module-level Set): no retries, no polling. Skipped when `navigator.connection?.saveData` is true.
    - **Never iframe a live demo.** Demos are only ever linked to, in a new tab.
@@ -70,7 +101,7 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
      11. Tech.
    - **Cloud & operations** (`CloudTabs`): with several views, a segmented pill control (surface track, raised active pill) built as an ARIA tablist (arrow keys, Home/End, `aria-selected`, labelled tabpanels), under the label "Cloud & operations". A single view renders on its own, with no tab control, under the label "Architecture". Each view: title, diagram, caption, optional `note`. "Key decisions" sits below, shared by all views.
    - **Diagram** (`ArchitectureDiagram`): renders any `CloudView` as inline SVG from data only: nodes on a `col`/`row` grid (max 3 columns), rounded surface rects with display-font labels and mono sublabels; 1.5px muted edges with arrowheads (`dashed`, `twoWay` optional) and mono labels on bg chips. Never scales above 1:1. Below `sm` it switches to a single column with long edges in side lanes. `role="img"` with `<title>` and a `<desc>` generated from the edges. No gradients, glows or cloud-provider brand icons.
-3. **Certifications** — mono `CERTIFICATIONS` h2 label, `<ul>` of cards (1-col → `lg:grid-cols-2`, gap-4). Each card is one link to the Credly credential (new tab, visually hidden "(opens in a new tab)"): `rounded-2xl` `surface` card, 1px `border`; issuer badge stacked above the text below `sm`, beside it from `sm`; badge 80px → 96px at `md`, `alt=""`, lazy; mono issuer line, cert name as display h3, "Verify on Credly ↗" in mono `accent`. Hover/focus: border to `accent`, badge lifts 2px (off under reduced motion), subtle shadow. No pixel decoration.
+3. **Certifications** — mono `CERTIFICATIONS` h2 label, `<ul>` of cards (1-col → `lg:grid-cols-2`, gap-4). Each card is one link to the Credly credential (new tab, visually hidden "(opens in a new tab)"): `rounded-2xl` `surface` card, 1px `border`; issuer badge stacked above the text below `sm`, beside it from `sm`; badge 80px → 96px at `md`, `alt=""`, lazy; mono issuer line, cert name as display h3, "Verify on Credly ↗" in mono `accent`. Hover/focus: border to `accent`, badge lifts 2px (off under reduced motion), subtle shadow. No pixel art inside the section; its margin piece sits in the left gutter.
 4. **Skills** — mono `SKILLS` h2 label (section id `skills`), then `skillGroups` from `src/data/skills.ts` in a grid: one column, `md:grid-cols-3`, `gap-8`, inside one `SectionReveal`.
    - **Group:** mono uppercase h3 label (`EyebrowLabel as="h3"`), then a wrapping `<ul>` of chips (`flex-wrap gap-2`). Empty groups are skipped.
    - **Chip** (`<li>`, not a link or button: no tabindex, no hover lift): `rounded-xl`, `surface` bg, 1px `border`, `px-3 py-2`. A 20px `aria-hidden` icon, then the name (Inter, `text-sm`, `text`).
@@ -79,7 +110,7 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
    - **Icon sources:** icons come from react-icons, Simple Icons (`Si*`) by default. Simple Icons removed the AWS and C# logos at the trademark owners' request, so AWS uses Font Awesome's `FaAws` and C# uses Tabler's `TbBrandCSharp`. Import only icons that are used, so unused ones never reach the bundle.
 5. **Education** — mono `EDUCATION` h2 label, same divided-list pattern as Experience: degree as display h3, school as an accent link (new tab, ↗), mono location, mono date right-aligned from `md`.
 6. **Experience** — mono `EXPERIENCE` h2 label, `<ul>` of companies with hairline `divide-y` dividers. Each company: name as display h3 (plain text, or an accent link opening in a new tab when `companyHref` is set) and a mono uppercase location; roles nested under it, so a promotion stays under one employer. Each role: title (Inter, medium, `text`), mono date range ("APR 2024 — DEC 2024", right-aligned on the title row from `md`, stacked below `md`), and a `muted` summary at max 60ch. No timeline graphics, connecting lines or cards.
-7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. 2× pixel trees bottom-right, rising on scroll, with the bird perched on the larger tree; hidden below `md`.
+7. **Footer/Contact** — status line with green dot ("Open to work · Worcester, MA"), oversized display h2 headline from `site.contactHeadline`, row of mono links (Email · GitHub · LinkedIn; Email stays in the same tab, the others open new tabs), and a mono `© {year} {name}` line. The pixel launch pad bottom-right, rising on scroll; hidden below `md`.
 
 ## Content
 - Real content lives in `src/data/*.ts` (site, skills, certifications, projects, experience, education, links) — components never hardcode copy.
@@ -114,4 +145,4 @@ Pixel-art palette (decorations only): soft sky blues `#BFD9F2 #8FBCE6`, cloud wh
 - No gradients, no glassmorphism, no glow effects.
 - No pixel fonts for body/headline text (mono utility labels only).
 - No autoplaying sound, no cursor effects, no scroll-jacking.
-- Don't let pixel decorations overlap or push text at any breakpoint.
+- Don't let pixel decorations overlap or push text at any breakpoint. The dim starfield is the only art allowed behind text.
