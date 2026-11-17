@@ -35,6 +35,12 @@ export const PIXEL_ROLES = [
   "ground",
   "ground-shade",
   "crater",
+  // Ghost art (behind text): dim tones only, checked by npm run check:contrast
+  "ghost-1",
+  "ghost-2",
+  "ghost-3",
+  "ghost-4",
+  "ghost-nebula",
   // Interface icons: follows the element's text color
   "ui",
 ] as const

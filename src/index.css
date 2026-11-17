@@ -28,6 +28,16 @@
      texture behind text. */
   --px-star-dim: #33333c;
 
+  /* Ghost art: large, very dim shapes behind the text. Every text color must
+     keep at least 4.5:1 against every ghost role (npm run check:contrast; muted
+     #8b8b94 is the binding one, so nothing brighter than about #252525). Tones
+     step up from the sky; the nebula role carries a faint violet tint. */
+  --px-ghost-1: #121216;
+  --px-ghost-2: #16161c;
+  --px-ghost-3: #1b1b22;
+  --px-ghost-4: #202028;
+  --px-ghost-nebula: #1d1a2c;
+
   /* Sun: drawn for a future light mode (PixelSun), not rendered yet. */
   --px-sun: #f6c453;
   --px-sun-shade: #e09f3e;
