@@ -12,9 +12,10 @@ import { skillGroups } from "./data/skills"
 import { education } from "./data/education"
 import { experience } from "./data/experience"
 import { Starfield } from "./components/pixel/Starfield"
+import { SiteHeader } from "./components/SiteHeader"
 
-// One list drives both the page and the nav: a section whose data is empty is left out
-// of both, so there's never a nav link to a missing section.
+// One list drives both the page and the menu: a section whose data is empty is left out
+// of both, so there's never a menu link to a missing section.
 const SECTIONS: { id: string; label: string; Component: ComponentType; items: readonly unknown[] }[] = [
   { id: "projects", label: "Projects", Component: Projects, items: projects },
   { id: "certifications", label: "Certifications", Component: Certifications, items: certifications },
@@ -25,18 +26,26 @@ const SECTIONS: { id: string; label: string; Component: ComponentType; items: re
 
 const visibleSections = SECTIONS.filter((section) => section.items.length > 0)
 
-const NAV_LINKS = [
-  ...visibleSections.map(({ id, label }) => ({ label, href: `#${id}` })),
-  { label: "Contact", href: "#contact" },
-]
 
 function App() {
   // React renders after the browser's own fragment scroll, so a link like /#skills
   // would land at the top. Scroll once on mount; #project/… is handled by the modal.
+  // Web fonts can still change heights above the target when they swap in, so
+  // scroll once more when they're ready, unless the visitor has scrolled since.
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1))
     if (!id || id.startsWith("project/")) return
-    document.getElementById(id)?.scrollIntoView({ behavior: "instant" })
+    const target = document.getElementById(id)
+    if (!target) return
+    target.scrollIntoView({ behavior: "instant" })
+    const landedAt = window.scrollY
+    let cancelled = false
+    document.fonts.ready.then(() => {
+      if (!cancelled && window.scrollY === landedAt) target.scrollIntoView({ behavior: "instant" })
+    })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -45,22 +54,7 @@ function App() {
     <div className="relative isolate">
       <Starfield />
 
-      <header className="mx-auto max-w-[1080px] px-6 pt-8">
-        <nav
-          aria-label="Section navigation"
-          className="flex flex-wrap gap-6 font-mono text-xs uppercase tracking-[0.2em] text-muted"
-        >
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="transition-colors hover:text-accent"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      </header>
+      <SiteHeader />
 
       <main className="mx-auto max-w-[1080px] px-6">
         <Hero />

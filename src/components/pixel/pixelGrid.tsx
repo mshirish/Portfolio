@@ -35,6 +35,8 @@ export const PIXEL_ROLES = [
   "ground",
   "ground-shade",
   "crater",
+  // Interface icons: follows the element's text color
+  "ui",
 ] as const
 
 export type PixelRole = (typeof PIXEL_ROLES)[number]

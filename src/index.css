@@ -53,6 +53,14 @@
   --px-ground: #4a4a55;
   --px-ground-shade: #34343c;
   --px-crater: #2a2a31;
+
+  /* Interface icons (the burger): the element's own text color, so hover and
+     focus colors apply. Not part of the space art. */
+  --px-ui: currentColor;
+
+  /* The sticky top bar's height. Anchored sections stop this far plus 1.5rem
+     below the viewport top, so their label lands just under the bar. */
+  --bar-height: 3.5rem;
 }
 
 /* Star twinkle: opacity 1 → 0.45 → 1 in steps, never a smooth fade. Each star
@@ -131,7 +139,7 @@
    Change spacing here, never per section. Hero and Footer override one side only. */
 @utility section-y {
   padding-block: 2rem;
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: calc(var(--bar-height) + 1.5rem);
 
   @variant md {
     padding-block: 3rem;

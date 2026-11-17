@@ -17,7 +17,7 @@ export function Footer() {
       ref={footerRef}
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative overflow-hidden"
+      className="relative scroll-mt-[calc(var(--bar-height)+1.5rem)] overflow-hidden"
     >
       {/* Padding lives here so the container's bottom is the footer's bottom edge, where
           the launch pad stands. The scene (184px tall, 160px wide) sits right of every
