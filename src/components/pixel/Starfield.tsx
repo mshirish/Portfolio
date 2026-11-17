@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import { seeded } from "./pixelShapes"
 
 /**
  * The page-wide background starfield: one seeded-random 320×320px tile of
@@ -15,17 +16,6 @@ const TILE = 320 // px
 const CELL = 2 // px per star cell
 const CELLS = TILE / CELL
 const STAR_COUNT = 42
-
-// mulberry32: a tiny seeded PRNG, so the field is the same on every load.
-function seeded(seed: number) {
-  let a = seed
-  return () => {
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 function tileSvg() {
   const random = seeded(20261115)
