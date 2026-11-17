@@ -21,6 +21,7 @@ npm run dev
 | `npm run build` | Type-check and build to `dist/` |
 | `npm run preview` | Serve the built `dist/` locally |
 | `npm run lint` | Run oxlint |
+| `npm run check:contrast` | Check every text color against the ghost-art colors (also runs in CI) |
 
 ## Editing content
 
@@ -147,6 +148,30 @@ To add a space sprite:
    ```
    Grounded art doesn't bob.
 
+### Ghost art and the contrast check
+
+Ghost art is the large, very dim layer behind the text: a giant planet arc, a big moon, a ringed planet and nebulae. It's the only art besides the starfield allowed behind text, so it may only use the ghost roles (`--px-ghost-*` in `src/index.css`), and every text color must keep at least 4.5:1 contrast against each of them.
+
+To check, run:
+
+```sh
+npm run check:contrast
+```
+
+It reads the colors from `src/index.css`, finds every `text-<color>` class used in `src/`, prints each text color's contrast against each ghost role (and the starfield's against the background), and exits 1 if anything is under 4.5:1 (or the starfield is over 1.6:1). CI runs it on every push and pull request. If you add a text color that never sits over ghost art (for example, inside a dialog), add it to `EXEMPT` in `scripts/check-contrast.mjs` with the reason.
+
+To add a ghost piece:
+
+1. Draw it in `src/components/pixel/ghost/ghostShapes.ts` with the shape helpers, using only `ghost-*` roles. Keep it under about 400 merged rects (`renderPixelGrid` merges horizontal runs, so smooth shapes cost less than noisy ones).
+2. In `GhostLayer.tsx`, add a component that renders it with `GhostPiece`, with one position for `lg` and up (6px per cell) and one below (4px per cell). Positions are offsets in % of the section; use `calc(50% - 50vw - …)` to anchor to the screen's left edge:
+   ```tsx
+   export function TalksGhost() {
+     return <GhostPiece grid={nebulaTall} lg={{ left: "60%", top: "10%" }} sm={{ left: "30%", top: "20%" }} />
+   }
+   ```
+3. Put it first inside its section (which must be `relative`). It's static: no bob, twinkle or drift.
+4. Run `npm run check:contrast`, and look at it at 390, 768 and 1440px: visible, but quiet, with the text as clear as before. If you add or change a ghost color, the check tells you whether it's still dark enough.
+
 To place a piece beside a section, give it two versions that share the same sprite grids from `spaceSprites.ts`:
 
 - a **margin piece** for 1280px and up, in the empty gutter beside the column (`MarginSprite`)
@@ -196,9 +221,10 @@ docker run --rm -p 8080:8080 ghcr.io/mshirish/portfolio:latest
 src/
   assets/             images imported by data files (certification badges, project screenshots)
   components/         one file per page section
-    pixel/            pixel-art space scene: sprites, starfield, MarginSprite, GapSprite
+    pixel/            pixel-art space scene: sprites, starfield, ghost art, MarginSprite, GapSprite
   data/               all site copy
   hooks/              useParallax (page, element and footer parallax), useProjectRoute, useWarmup
+scripts/                 check-contrast.mjs (npm run check:contrast)
 media/                   local-only capture tooling (separate npm project)
 Dockerfile, nginx.conf   container image
 .github/workflows/       CI

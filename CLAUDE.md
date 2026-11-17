@@ -46,11 +46,13 @@ Pixel-art colors are **roles**, not hex values: see Pixel art below. Max ~8 role
   - Choosing a link: the menu closes first (exit animation, then `dialog.close()`, releasing the scroll lock), then the page scrolls to the section (smooth; instant under reduced motion), the hash is pushed, and focus moves to the section's heading (`aria-labelledby` target, `tabindex="-1"`).
   - Fade + 12px slide over 200ms with Framer Motion; instant under reduced motion.
   - Only one dialog at a time: a hash change or Back while the menu is open closes it, so it never sits over the project modal and doesn't interfere with `#project/…` routing.
-- **Layering:** starfield (`-z-10`) < sections < pixel art < sticky bar (`z-30`) < menu and project modal (both in the browser's top layer). Art scrolls under the bar.
+- **Layering**, back to front: page background < starfield (`-z-10`) < ghost art (`z-index: -5`) < page content and full-color pixel art < sticky bar (`z-30`) < menu and project modal (both in the browser's top layer). Art scrolls under the bar. The app's root wrapper is `relative isolate overflow-x-clip`: `isolate` keeps the negative layers above the page background, and `overflow-x: clip` lets ghost art run off the screen edges without horizontal scroll (unlike `hidden`, it doesn't create a scroll container, so the sticky bar keeps working).
 - **Anchors:** every section's `scroll-margin-top` (and the footer's, for `#contact`) is the bar height plus 1.5rem, so jumps and deep links (`/#skills`) land with the label just below the bar. On load, `App.tsx` scrolls to the hash once, and again when web fonts finish loading unless the visitor has scrolled. `/#project/<slug>` opens the project modal instead.
 
 ## Pixel art (important)
-The theme is **space**: a dim starfield behind the page, a night-sky scene in the hero, a small space piece beside each section and a launch pad in the footer. Every piece has a placement for each screen size (see Placement). Pixel art is decoration, never behind or over text, with one exception: the dim starfield.
+The theme is **space**: a dim starfield behind the page, large dim ghost shapes behind the text, a night-sky scene in the hero, a small space piece beside each section and a launch pad in the footer. Every piece has a placement for each screen size (see Placement).
+
+**The readability rule.** Only two kinds of art may sit behind text: the starfield and ghost art. Ghost art uses only the ghost roles, and **every text color on the page keeps at least 4.5:1 contrast against every ghost role** (`text`, `muted` and `accent`; `muted` #8B8B94 is the binding one, so no ghost tone may be brighter than about #252525). The starfield's `star-dim` stays at **1.6:1 or less** against `bg`. `npm run check:contrast` enforces both and runs in CI; it finds text colors by scanning `src/` for `text-<color>` classes, so a new text color is either checked or added to its exemption list with a reason. All full-color art (moon, planets, rockets, margin and gap pieces, launch pad) must never overlap text.
 
 ### Building sprites
 - Pixel art is **inline SVG rect grids** with `shape-rendering: crispEdges`, rendered by `renderPixelGrid` (`src/components/pixel/pixelGrid.tsx`) or the `PixelSprite` wrapper. No external image assets, no `<image>`, no canvas, no blur, glow or gradients.
@@ -68,8 +70,9 @@ CSS custom properties `--px-<role>` in `src/index.css` under `:root` (dark value
 - Rockets: `rocket-body` `#EDF4FB`, `rocket-trim`, `rocket-window`, `flame-hot`, `flame`
 - Hardware and surfaces: `metal`, `metal-shade`, `ground`, `ground-shade`, `crater`
 - Interface: `ui` (`currentColor`), for the burger icon only
+- Ghost art (the only roles allowed behind text): `ghost-1` #121216, `ghost-2` #16161C, `ghost-3` #1B1B22, `ghost-4` #202028 (brightest; `muted` clears it at 4.79:1), `ghost-nebula` #1D1A2C (faint violet)
 
-### The starfield (the only art behind text)
+### The starfield
 `Starfield` fills the page-wide `relative isolate` wrapper in `App.tsx` at `-z-10`, `pointer-events: none`. One seeded-random 320×320px tile of 2px stars is a CSS mask over a layer filled with `var(--px-star-dim)`, repeated. No per-star nodes, no scroll handlers. `star-dim` must stay at **1.6:1 or less** against `bg` (it's 1.54:1), so it reads as texture. It doesn't twinkle.
 
 ### Placement
@@ -90,8 +93,15 @@ Only whole-number scales; a variant per scale is rendered and the others are hid
 - **Footer** (`PixelLaunchPad`): moon ground, a pad, a 10×40 lattice gantry, a parked rocket (no exhaust) and a pennant. From `md`: one 160×184px scene absolutely placed bottom-right on the footer's bottom edge. Below `md` (`PixelLaunchPadInline`): the same props in the flow under the © line, aligned right, on a ground strip that spans the content width, sitting on the footer's bottom edge. Never over the headline, links or © line.
 - `PixelSun` exists for the future light mode and isn't rendered anywhere.
 
+### Ghost art
+Large, very dim shapes behind the text (`src/components/pixel/ghost/ghostShapes.ts`, placed by `GhostLayer.tsx`): a giant planet arc, a big moon (3× the hero moon), a large ringed planet and three nebulae (irregular clusters of blobs in three stepped tones, denser in the middle). Ghost roles only, drawn with the shape helpers, each under about 400 merged rects. 6px per cell from `lg`, 4px below.
+- **Anchoring:** each piece lives inside a section (which must be `relative`) and is positioned with offsets in % of that section's width and height, so it follows its section as text reflows. `calc(50% - 50vw - …)` anchors to the viewport's left edge, for pieces meant to sit half off-screen. Pieces may run past their section and off the screen; the root's `overflow-x: clip` stops horizontal scroll. The hero clips only vertically (`overflow-y-clip`), so its arc can run off the left edge. Each piece is `aria-hidden`, `pointer-events: none`, `z-index: -5` and `contain: paint`.
+- **Current layout:** Hero, the giant planet arc rising from the bottom-left behind the bio (its bottom rows step down to the darkest tones, so where the hero clips it, it fades); Projects, the wide nebula behind the card grid spreading right; Skills, the ringed planet center-right behind the chips; Education, the big moon at the left, half off-screen; Contact, the small nebula behind the headline. The tall nebula is drawn but not placed.
+- **Covering:** solid surfaces (project and certification cards, skill chips, dialogs) cover ghost art, as they cover the starfield.
+- **Motion:** static. At most very slow parallax (0.03–0.05×), never bob, twinkle or drift; fully static under reduced motion.
+
 ### Checking a change
-Measure, don't guess: after moving or adding art, check bounding boxes against text and interactive elements (the burger included) at 360, 390, 440, 768, 1024, 1280, 1440 and 1920px, scrolling the whole page (include the satellite's whole orbit and the shooting-star path). Art passing under the opaque sticky bar is fine; count only what's visible below it.
+Measure, don't guess: after moving or adding full-color art, check bounding boxes against text and interactive elements (the burger included) at 360, 390, 440, 768, 1024, 1280, 1440 and 1920px, scrolling the whole page (include the satellite's whole orbit and the shooting-star path). Art passing under the opaque sticky bar is fine; count only what's visible below it. Ghost art is excluded from that check; for it, run `npm run check:contrast` and sample the screenshot pixels inside the text it sits behind (nothing brighter than the brightest ghost role, apart from the starfield's stars).
 
 ## Motion rules
 - **Floating** art (moon, planets, rockets in flight, the satellite, the astronaut, asteroids) bobs: the `.px-bob` keyframes, 0 to −3px and back, alternating, in whole-pixel steps (uneven keyframe spacing approximates ease-in-out). Each sprite sets its own `--px-bob-duration` (3–5s) and `--px-bob-delay` via `bobStyle()`, so nothing moves in sync.
@@ -100,6 +110,7 @@ Measure, don't guess: after moving or adding art, check bounding boxes against t
 - **Twinkle:** about a quarter of the foreground stars (hero, band and pieces) blink with stepped opacity, 1 → 0.45 → 1, each on its own 2–6s cycle (`.px-twinkle`). The background tile doesn't.
 - **Orbit:** the satellite circles the ringed planet every 40s on 120 precomputed whole-pixel CSS keyframes (one set per scale: `px-orbit-2/3/4`), with z-index 1 (behind the planet) on the far half and 3 (in front) on the near half. No JS animation loop.
 - **Shooting star:** every 20–30s (random each time), one streak crosses in 18 whole-pixel hops over 0.8s. The timer stops while the tab is hidden and on unmount.
+- **Ghost art** is static (at most 0.03–0.05× parallax): no bob, twinkle or drift.
 - All movement uses whole-pixel steps (`steps()`), so pixels stay crisp.
 - **Reduced motion:** under `prefers-reduced-motion: reduce`, every CSS animation is off (each rule sits inside `prefers-reduced-motion: no-preference`), parallax hooks return 0 and the shooting-star timer never starts. Everything sits still.
 - Content: single gentle fade + 12px slide-up reveal per section, once, `viewport={{ once: true }}`. No staggered letter animations, no scroll-jacking.
@@ -168,4 +179,4 @@ Measure, don't guess: after moving or adding art, check bounding boxes against t
 - No gradients, no glassmorphism, no glow effects.
 - No pixel fonts for body/headline text (mono utility labels only).
 - No autoplaying sound, no cursor effects, no scroll-jacking.
-- Don't let pixel decorations overlap or push text at any breakpoint. The dim starfield is the only art allowed behind text.
+- Don't let pixel decorations overlap or push text at any breakpoint. Only the starfield and ghost art may sit behind text, under the readability rule.
