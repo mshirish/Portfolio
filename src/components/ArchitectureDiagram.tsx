@@ -77,8 +77,23 @@ function exitPoint(b: Box, dx: number, dy: number) {
   return { x: c.x + dx * t, y: c.y + dy * t }
 }
 
-function chipLines(label: string) {
-  return label.length > 12 ? wrap(label, 12) : [label]
+function chipLines(label: string, maxWidth?: number) {
+  const lines = label.length > 12 ? wrap(label, 12) : [label]
+  if (maxWidth === undefined || chipSize(lines).w <= maxWidth) return lines
+  // Too wide for its gap: wrap word by word, keeping a "·" with the word before it.
+  const maxChars = Math.max(1, Math.floor((maxWidth - CHIP_PAD_X * 2) / (EDGE_LABEL_SIZE * MONO_CHAR)))
+  const words = label.split(" ").reduce<string[]>((acc, word) => {
+    if (word === "·" && acc.length) acc[acc.length - 1] += " ·"
+    else acc.push(word)
+    return acc
+  }, [])
+  const tight: string[] = []
+  for (const word of words) {
+    const last = tight[tight.length - 1]
+    if (last !== undefined && `${last} ${word}`.length <= maxChars) tight[tight.length - 1] = `${last} ${word}`
+    else tight.push(word)
+  }
+  return tight
 }
 
 function chipSize(lines: string[]) {
@@ -95,6 +110,8 @@ interface Route {
   labelAt: { x: number; y: number }
   /** Keeps the label chip from starting left of this x (lane chips stay clear of the nodes) */
   labelMinX?: number
+  /** Widest the label chip may be (horizontal edges keep room for the arrowhead) */
+  labelMaxWidth?: number
 }
 
 /** Centre x of an edge's label chip, honouring the route's labelMinX. */
@@ -141,6 +158,8 @@ function gridLayout(view: CloudView) {
       edge,
       d: `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
       labelAt: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
+      // Same row: the chip sits in the column gap, so leave room for the arrowhead.
+      labelMaxWidth: a.node.row === b.node.row ? Math.abs(end.x - start.x) - 16 : undefined,
     }
   })
 
@@ -296,7 +315,7 @@ function Diagram({ view, layout, className }: { view: CloudView; layout: "grid" 
       {routes.map((route) => {
         const { edge, labelAt } = route
         if (!edge.label) return null
-        const lines = chipLines(edge.label)
+        const lines = chipLines(edge.label, route.labelMaxWidth)
         const chip = chipSize(lines)
         const cx = chipCenterX(route, chip.w)
         return (
