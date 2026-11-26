@@ -9,6 +9,8 @@ import devpilotLanding from "../assets/projects/devpilot/01-landing.webp"
 import devpilotRepositories from "../assets/projects/devpilot/02-repositories.webp"
 import devpilotOverview from "../assets/projects/devpilot/03-overview.webp"
 import devpilotChat from "../assets/projects/devpilot/04-chat.webp"
+import carttweakVideo from "../assets/projects/carttweak/brag.mp4"
+import carttweakPoster from "../assets/projects/carttweak/poster.webp"
 
 export interface DiagramNode {
   id: string
@@ -336,6 +338,88 @@ export const projects: Project[] = [
         "The demo is read-only: one preloaded repository and a few questions per visitor.",
         "Answers depend on Gemini's free daily quota; when it runs out, the demo asks visitors to come back tomorrow.",
         "Indexing runs in memory on a single backend instance: a restart stops the job, which is then marked failed so it can be retried.",
+      ],
+    },
+  },
+  {
+    slug: "carttweak",
+    name: "CartTweak",
+    subtitle: "Rates a grocery haul and suggests swaps that fit a nutrition goal and a budget",
+    summary:
+      "Upload a Kroger receipt or a list: CartTweak scores the haul's nutrition and suggests up to two swaps within your budget.",
+    highlight: "1st of 15 teams · Hack4Good 2026",
+    tech: [
+      "TypeScript",
+      "React",
+      "Vite",
+      "Hono",
+      "Node.js",
+      "Tesseract.js",
+      "Vitest",
+      "Kroger API",
+      "USDA FoodData Central",
+    ],
+    backdrop: "#0E6B4E",
+    images: [carttweakPoster],
+    repoUrl: "https://github.com/mshirish/carttweak",
+    video: {
+      src: carttweakVideo,
+      poster: carttweakPoster,
+      aspect: "16/9",
+      description: "CartTweak launch video: a shopping list, nutrition goals, a budget and a suggested swap.",
+      note: "Launch video: illustrative nutrition and prices, sample data.",
+    },
+    credits: {
+      text: "Built at Hack4Good (Clark Computing Club, Clark University), November 2026, with",
+      people: [{ name: "Adnan" }, { name: "Dikshya" }, { name: "Rojesh" }],
+    },
+    howItWorks: [
+      "Start with what you buy: photograph a Kroger receipt, upload its PDF, paste a list or try the demo list.",
+      "Check what was read: the receipt is read in the browser, and every line is confirmed before anything is matched.",
+      "Match: items are matched to products at the chosen Kroger store, and nutrition comes from USDA FoodData Central by barcode.",
+      "Score and swap: the haul gets a nutrition score out of 100, then up to two swaps that fit the goal and budget, compared per 100 g and by checkout price.",
+    ],
+    caseStudy: {
+      overview:
+        "Healthier groceries are hard to pick in the aisle: labels use different serving sizes, and the better option might cost more. CartTweak reads what you already buy, scores it, and suggests up to two swaps that move you toward one goal (more fiber or protein, less added sugar or sodium) without breaking your trip budget.",
+      built: [
+        "The swap engine: same-kind-of-food groups, goal thresholds, ranking within a whole-trip budget, and checkout cost in whole packages at regular price, with promotions shown separately and money kept in integer cents.",
+        "Strict data matching: a packaged product gets nutrition only when its Kroger barcode and a USDA record normalize to the same GTIN-14 with a valid check digit; unknown values stay unknown, never zero.",
+        "A haul score out of 100 from the original 2017 Nutri-Score algorithm, weighted by what was spent, with a low-confidence flag when too little of the haul can be scored.",
+        "Receipt reading in the browser with Tesseract: deskewing, side-by-side receipt splitting and Kroger abbreviation expansion, then a check screen where the shopper confirms each line. Payment and ID lines are removed.",
+        "A Hono API that is the only place the Kroger and USDA keys live, with a disk cache, adaptive concurrency and progress updates for slow first runs.",
+        "300 tests in Vitest, including ones replayed from recorded live API responses.",
+      ],
+      cloud: {
+        views: [
+          {
+            id: "arch",
+            tabLabel: "Architecture",
+            title: "Browser + Hono API",
+            caption: "Receipt images stay in the browser; only confirmed item lines reach the API.",
+            nodes: [
+              { id: "browser", label: "Browser", sublabel: "React · Vite · Tesseract.js OCR", col: 0, row: 0 },
+              { id: "api", label: "CartTweak API", sublabel: "Hono · Node.js · disk cache", col: 1, row: 0 },
+              { id: "kroger", label: "Kroger API", sublabel: "store products, prices, sizes", col: 2, row: 0 },
+              { id: "usda", label: "USDA FoodData Central", sublabel: "nutrition by barcode", col: 1, row: 1 },
+            ],
+            edges: [
+              { from: "browser", to: "api", label: "item lines" },
+              { from: "api", to: "kroger", label: "OAuth · product search" },
+              { from: "api", to: "usda", label: "barcode lookup" },
+            ],
+          },
+        ],
+        decisions: [
+          "Images never leave the device: OCR runs client-side and only the confirmed lines are sent.",
+          "API keys exist only on the server; the browser never calls Kroger or USDA directly.",
+          "Store-specific code sits behind a ChainAdapter and a receipt-parser registry, so another chain can be added without touching the engine.",
+        ],
+      },
+      limitations: [
+        "Kroger only for now, with prices from the selected Kroger store.",
+        "Uses the original 2017 Nutri-Score; US labels don't list fruit and vegetable content, so it counts as zero except for fresh produce.",
+        "Some USDA label records are years old; the app flags them as possibly outdated.",
       ],
     },
   },
