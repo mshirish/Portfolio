@@ -3,6 +3,7 @@ import type { Project } from "../data/projects"
 import { useWarmupOnView } from "../hooks/useWarmup"
 import { DraftTag } from "./DraftTag"
 import { ExternalLink } from "./ExternalLink"
+import { joinNames } from "../utils/joinNames"
 
 // Fan out on card hover, or when the case-study button has keyboard focus.
 const FAN = "motion-safe:group-hover:-translate-y-2 motion-safe:group-has-[[aria-haspopup]:focus-visible]:-translate-y-2"
@@ -103,9 +104,12 @@ export function ProjectCard({
         <p className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
           {project.tech.join(" · ")}
         </p>
+        {project.highlight && (
+          <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-text">{project.highlight}</p>
+        )}
         {project.credits && (
           <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-muted">
-            With {project.credits.name}
+            With {joinNames(project.credits.people.map((person) => person.name))}
           </p>
         )}
 

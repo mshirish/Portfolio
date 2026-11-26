@@ -48,11 +48,19 @@ export interface GalleryItem {
   height: number
 }
 
+export interface Person {
+  name: string
+  /** Profile link; the name renders as plain text without one */
+  href?: string
+}
+
 export interface Project {
   slug: string
   name: string
   subtitle: string
   summary: string
+  /** Achievement line, e.g. a hackathon placing; shown on the card and under the modal subtitle */
+  highlight?: string
   tech: string[]
   backdrop: string
   images: string[]
@@ -65,13 +73,21 @@ export interface Project {
   warmupUrl?: string
   /** Ordered steps, rendered as a numbered list */
   howItWorks?: string[]
-  /** Collaborators, named visibly in the modal */
-  credits?: { text: string; name: string; href: string; detail?: string }
+  /** Collaborators, named visibly on the card and in the modal */
+  credits?: { text: string; people: Person[]; detail?: string }
   extraLinks?: { label: string; href: string }[]
   gallery?: { title: string; items: GalleryItem[] }
   /** Copy not yet verified against the project's repo. CI refuses to merge drafts. */
   draft?: boolean
-  video?: { src: string; poster: string; description: string }
+  video?: {
+    src: string
+    poster: string
+    description: string
+    /** Media box shape, so the video isn't cropped. Defaults to "16/10". */
+    aspect?: "16/9" | "16/10"
+    /** Shown under the video; must say so when the video uses sample data */
+    note?: string
+  }
   caseStudy?: {
     overview: string
     built: string[]
@@ -232,8 +248,7 @@ export const projects: Project[] = [
     warmupUrl: "https://dev-pilot-blush.vercel.app/api/auth/config",
     credits: {
       text: "Capstone project at Clark University, built with",
-      name: "Aashutosh Paneru",
-      href: "https://github.com/Aashutosh17",
+      people: [{ name: "Aashutosh Paneru", href: "https://github.com/Aashutosh17" }],
       detail:
         "Aashutosh built user management, GitHub OAuth sign-in and security, and the first indexing utilities with the pgvector setup.",
     },

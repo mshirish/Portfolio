@@ -5,6 +5,7 @@ import { CloudTabs } from "./CloudTabs"
 import { DraftTag } from "./DraftTag"
 import { EyebrowLabel } from "./EyebrowLabel"
 import { ExternalLink } from "./ExternalLink"
+import { PeopleList, TextWithPeopleLinked } from "./People"
 
 const backdropVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 } }
 const panelVariants: Variants = {
@@ -113,21 +114,8 @@ function BulletList({ items }: { items: string[] }) {
   )
 }
 
-/** Links the collaborator's name (full, or first name) where it appears in the text. */
-function WithNameLinked({ text, name, href }: { text: string; name: string; href: string }) {
-  const match = [name, name.split(" ")[0]].find((n) => text.includes(n))
-  if (!match) return <>{text}</>
-  const at = text.indexOf(match)
-  return (
-    <>
-      {text.slice(0, at)}
-      <ExternalLink href={href} className={TEXT_LINK}>
-        {match}
-      </ExternalLink>
-      {text.slice(at + match.length)}
-    </>
-  )
-}
+// Media box shapes; written out in full so Tailwind generates both classes.
+const ASPECT = { "16/9": "aspect-[16/9]", "16/10": "aspect-[16/10]" } as const
 
 const TEXT_LINK = "text-accent underline-offset-4 hover:underline"
 const SECONDARY_LINK =
@@ -153,12 +141,12 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
             {project.draft && <DraftTag />}
           </div>
           <p className="mt-2 text-muted">{project.subtitle}</p>
+          {project.highlight && (
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-text">{project.highlight}</p>
+          )}
           {credits && (
             <p className="mt-2 text-sm text-muted">
-              {credits.text}{" "}
-              <ExternalLink href={credits.href} className={TEXT_LINK}>
-                {credits.name}
-              </ExternalLink>
+              {credits.text} <PeopleList people={credits.people} linkClassName={TEXT_LINK} />
             </p>
           )}
         </div>
@@ -173,8 +161,11 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
       </header>
 
       {/* 2. Media */}
-      <div className="mt-6 aspect-[16/10] overflow-hidden rounded-xl border border-border bg-bg">
+      <div
+        className={`mt-6 ${ASPECT[project.video?.aspect ?? "16/10"]} overflow-hidden rounded-xl border border-border bg-bg`}
+      >
         {project.video ? (
+          // No autoplay: the visitor starts it (some videos have sound).
           <video
             src={project.video.src}
             poster={project.video.poster}
@@ -182,7 +173,7 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
             controls
             playsInline
             preload="none"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
           />
         ) : (
           front && (
@@ -197,6 +188,7 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
           )
         )}
       </div>
+      {project.video?.note && <p className="mt-2 font-mono text-xs text-muted">{project.video.note}</p>}
 
       {/* 3. Links and notes */}
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -300,7 +292,7 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
       {credits?.detail && (
         <Section label="Built with">
           <p className="text-muted">
-            <WithNameLinked text={credits.detail} name={credits.name} href={credits.href} />
+            <TextWithPeopleLinked text={credits.detail} people={credits.people} linkClassName={TEXT_LINK} />
           </p>
         </Section>
       )}
