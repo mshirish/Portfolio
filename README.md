@@ -94,10 +94,11 @@ Optional fields (each section of the modal only appears when its field is set):
 | `wakeNote` | One short line for demos on free hosting that sleep ("the first load can take about a minute"), on the card and in the modal |
 | `warmupUrl` | A cheap endpoint on the demo's backend. It's fetched once per page view, when the card scrolls into view or its modal opens, so the backend is awake by the time someone clicks. Skipped for visitors with Save-Data on. |
 | `howItWorks` | Ordered steps, shown as a numbered list |
-| `credits` | `{ text, name, href, detail? }` for a project built with someone else. Their name shows on the card and, linked, in the modal; `detail` says what they built. Always credit collaborators. |
+| `highlight` | One achievement line (e.g. "1st of 15 teams · Hack4Good 2026"), shown in the text color on the card under the tech line and under the modal subtitle |
+| `credits` | `{ text, people: { name, href? }[], detail? }` for a project built with others. Names are joined "A, B and C" and are links only when they have an `href`. `detail` says what they built. Always credit collaborators. |
 | `extraLinks` | `{ label, href }[]`: more links beside "View source code" |
 | `gallery` | `{ title, items }`, each item `{ src, alt, caption, width, height }` (imported image and its intrinsic size) |
-| `video` | `{ src, poster, description }`, shown in place of `images[0]` in the modal |
+| `video` | `{ src, poster, description, aspect?, note? }`, shown in place of `images[0]` in the modal. Import the mp4 and a poster WebP (1600px wide) from `src/assets/projects/<slug>/`. `aspect` is `"16/9"` or `"16/10"` (default) so the video isn't cropped; `note` shows under it and must say so when the video uses sample data. Videos never autoplay and load nothing until played (`preload="none"`). Keep the file small (CartTweak's is 1.6 MB) |
 | `caseStudy` | `{ overview, built, cloud?, limitations? }`. `cloud` is `{ views, decisions }`: one view renders as a single "Architecture" diagram, several get tabs. Diagram nodes sit on a `col`/`row` grid of up to 3 columns. |
 
 If the site ever gets a Content-Security-Policy, add each `warmupUrl` origin to `connect-src`.
